@@ -34,15 +34,20 @@ namespace SnowbreakBox {
 
             localizationTxtPath = Path.Combine(realGameFolder, "localization.txt");
 
-			engineIniPath = Path.Combine(realGameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
+            // 不同启动器/版本 Engine.ini 位置也不同
+            engineIniPath = Path.Combine(realGameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
 			if (!File.Exists(engineIniPath)) {
-				// 也可能在 AppData 里
-				engineIniPath = Path.Combine(
-					Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-					"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
-				);
+				// Saved 目录可能不在 game 目录里
+                engineIniPath = Path.Combine(realGameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
 				if (!File.Exists(engineIniPath)) {
-					return false;
+                    // Engine.ini 也可能在 AppData 里
+                    engineIniPath = Path.Combine(
+						Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+						"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
+					);
+					if (!File.Exists(engineIniPath)) {
+						return false;
+					}
 				}
 			}
 
