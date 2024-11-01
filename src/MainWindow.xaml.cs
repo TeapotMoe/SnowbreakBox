@@ -33,9 +33,11 @@ namespace SnowbreakBox {
 				return false;
 			}
 
+			// 不检查 localization.txt 是否存在，如果不存在我们便创建一个
 			localizationTxtPath = Path.Combine(realGameFolder, "localization.txt");
 
 			// 不同启动器/版本 Engine.ini 位置也不同
+			// 必须启动一次游戏才能保证 Engine.ini 存在！
 			engineIniPath = Path.Combine(realGameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
 			if (!File.Exists(engineIniPath)) {
 				// Saved 目录可能不在 game 目录里
@@ -162,12 +164,26 @@ namespace SnowbreakBox {
 			try {
 				File.WriteAllText(localizationTxtPath, "localization = 1");
 			} catch (Exception ex) {
+				uncensorCheckBox.Checked -= UncensorCheckBox_Checked;
+				uncensorCheckBox.Unchecked -= UncensorCheckBox_Unchecked;
+				uncensorCheckBox.IsChecked = !GetCensorState();
+				uncensorCheckBox.Checked += UncensorCheckBox_Checked;
+				uncensorCheckBox.Unchecked += UncensorCheckBox_Unchecked;
 				ShowError("操作失败：" + ex.Message);
 			}
 		}
 
 		private void UncensorCheckBox_Unchecked(object sender, RoutedEventArgs e) {
-			File.WriteAllText(localizationTxtPath, "localization = 0");
+			try {
+				File.WriteAllText(localizationTxtPath, "localization = 0");
+			} catch (Exception ex) {
+				uncensorCheckBox.Checked -= UncensorCheckBox_Checked;
+				uncensorCheckBox.Unchecked -= UncensorCheckBox_Unchecked;
+				uncensorCheckBox.IsChecked = !GetCensorState();
+				uncensorCheckBox.Checked += UncensorCheckBox_Checked;
+				uncensorCheckBox.Unchecked += UncensorCheckBox_Unchecked;
+				ShowError("操作失败：" + ex.Message);
+			}
 		}
 
 		private void GraphicComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
@@ -175,9 +191,11 @@ namespace SnowbreakBox {
 			int targetState = graphicComboBox.SelectedIndex;
 
 			try {
+				// 无需保留原始文件的内容，游戏启动时会自动添加默认条目
 				string iniText = targetState > 0 ? 
 					Properties.Resources.ResourceManager.GetString("Profile" + targetState) : string.Empty;
 				File.WriteAllText(iniPath, iniText);
+
 				Settings.Default["GraphicState"] = targetState;
 				Settings.Default.Save();
 			} catch (Exception ex) {
@@ -188,9 +206,9 @@ namespace SnowbreakBox {
 			}
 		}
 
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-            e.Handled = true;
-        }
-    }
+		private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
+			Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+			e.Handled = true;
+		}
+	}
 }

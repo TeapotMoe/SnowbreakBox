@@ -25,7 +25,7 @@
 				          Unchecked="UncensorCheckBox_Unchecked" />
 			</StackPanel>
 			<Label Margin="0,-4,0,4"
-			       Content="自动修改 localization.txt"
+			       Content="自动修改 localization.txt。"
 			       FontSize="11"
 			       Foreground="Gray" />
 			<StackPanel Orientation="Horizontal">
