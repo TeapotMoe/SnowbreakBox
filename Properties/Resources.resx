@@ -1,0 +1,474 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Profile1" xml:space="preserve">
+    <value>[SystemSettings]
+rhi.SyncInterval=1
+rhi.SyncSlackMS=0
+r.GTSyncType=2
+r.OneFrameThreadLag=1
+r.VSync=1
+r.Streaming.NumStaticComponentsProcessedPerFrame=10
+s.LevelStreamingComponentsUnregistrationGranularity=5
+s.LevelStreamingComponentsRegistrationGranularity=5
+s.AsyncLoadingTimeLimit=2
+s.PriorityAsyncLoadingExtraTime=1
+s.UnregisterComponentsTimeLimit=2
+s.LevelStreamingActorsUpdateTimeLimit=2
+s.PriorityLevelStreamingActorsUpdateExtraTime=1
+s.ContinuouslyIncrementalGCWhileLevelsPendingPurge=0
+s.ForceGCAfterLevelStreamedOut=0
+gc.MultithreadedDestructionEnabled=0
+ 
+[/script/engine.engine]
+bSmoothFrameRate=true
+
+[CrashReportClient]
+bAgreeToCrashUpload=false
+bImplicitSend=False
+
+[Core.Log]
+LogPluginManager=all off
+LogOnlineIdentity=all off
+LogOnlineSession=all off
+LogMemory=all off
+LogMemory=all off
+LogMemory=all off
+LogPakFile=all off
+LogTemp=all off
+LogLinker=all off
+LogOnline=all off
+LogOnlineGame=all off
+LogAnalytics=all off
+LogConfig=all off
+LogInteractiveProcess=all off
+LogInput=all off
+LogOnlineEntitlement=all off
+LogOnlineEvents=all off
+LogOnlineFriend=all off
+LogOnlinePresence=all off
+LogOnlineTitleFile=all off
+LogOnlineUser=all off
+LogGarbage=all off
+LogPIE=all off
+Global=off</value>
+  </data>
+  <data name="Profile2" xml:space="preserve">
+    <value>[SystemSettings]
+r.LevelStreamingDistanceScale=10
+r.ViewDistanceScale=10
+r.StaticMeshLODDistanceScale=0.25
+r.SkeletalMeshLODBias=-3
+r.LandscapeLODBias=-1
+r.LandscapeLODDistributionScale=3
+r.LandscapeLOD0DistributionScale=3
+r.LODFadeTime=2
+r.UITextureLODBias=-1
+rhi.SyncInterval=1
+rhi.SyncSlackMS=0
+r.GTSyncType=2
+r.OneFrameThreadLag=1
+r.VSync=1
+r.Streaming.NumStaticComponentsProcessedPerFrame=10
+s.LevelStreamingComponentsUnregistrationGranularity=5
+s.LevelStreamingComponentsRegistrationGranularity=5
+s.AsyncLoadingTimeLimit=2
+s.PriorityAsyncLoadingExtraTime=1
+s.UnregisterComponentsTimeLimit=2
+s.LevelStreamingActorsUpdateTimeLimit=2
+s.PriorityLevelStreamingActorsUpdateExtraTime=1
+s.ContinuouslyIncrementalGCWhileLevelsPendingPurge=0
+s.ForceGCAfterLevelStreamedOut=0
+gc.MultithreadedDestructionEnabled=0
+ 
+[/script/engine.engine]
+bSmoothFrameRate=true
+
+[CrashReportClient]
+bAgreeToCrashUpload=false
+bImplicitSend=False
+
+[Core.Log]
+LogPluginManager=all off
+LogOnlineIdentity=all off
+LogOnlineSession=all off
+LogMemory=all off
+LogMemory=all off
+LogMemory=all off
+LogPakFile=all off
+LogTemp=all off
+LogLinker=all off
+LogOnline=all off
+LogOnlineGame=all off
+LogAnalytics=all off
+LogConfig=all off
+LogInteractiveProcess=all off
+LogInput=all off
+LogOnlineEntitlement=all off
+LogOnlineEvents=all off
+LogOnlineFriend=all off
+LogOnlinePresence=all off
+LogOnlineTitleFile=all off
+LogOnlineUser=all off
+LogGarbage=all off
+LogPIE=all off
+Global=off</value>
+  </data>
+  <data name="Profile3" xml:space="preserve">
+    <value>[SystemSettings]
+r.VT.MaxAnisotropy=16
+r.MaxAnisotropy=16
+r.PostProcessAAQuality=5
+r.TemporalAA.Algorithm=1
+r.TemporalAASharpness=0.0
+r.TemporalAASamples=16
+r.TemporalAADynamicSharpen=0.0
+r.TemporalAACurrentFrameWeight=0.00
+r.Tonemapper.GrainQuantization=0
+r.ToneMapper.Sharpen=0.0
+r.Shadow.Denoiser=1
+r.AmbientOcclusion.Denoiser=1
+r.Shadow.RadiusThreshold=0
+r.Shadow.MaxResolution=3072
+r.Shadow.MinResolution=2048
+r.Shadow.MaxCSMResolution=3072
+r.Shadow.MinCSMResolution=2048
+r.LevelStreamingDistanceScale=10
+r.ViewDistanceScale=10
+r.StaticMeshLODDistanceScale=0.25
+r.SkeletalMeshLODBias=-1
+r.LandscapeLODBias=-1
+r.LandscapeLODDistributionScale=3
+r.LandscapeLOD0DistributionScale=3
+r.LODFadeTime=2
+r.UITextureLODBias=-1
+
+r.Reflections.Denoiser=2
+r.SSR.MaxRoughness=0.8
+r.SSR.Temporal=1
+r.LightMaxDrawDistanceScale=1
+
+rhi.SyncInterval=1
+rhi.SyncSlackMS=0
+r.GTSyncType=2
+r.OneFrameThreadLag=1
+r.VSync=1
+r.Streaming.NumStaticComponentsProcessedPerFrame=10
+s.LevelStreamingComponentsUnregistrationGranularity=5
+s.LevelStreamingComponentsRegistrationGranularity=5
+s.AsyncLoadingTimeLimit=2
+s.PriorityAsyncLoadingExtraTime=1
+s.UnregisterComponentsTimeLimit=2
+s.LevelStreamingActorsUpdateTimeLimit=2
+s.PriorityLevelStreamingActorsUpdateExtraTime=1
+s.ContinuouslyIncrementalGCWhileLevelsPendingPurge=0
+s.ForceGCAfterLevelStreamedOut=0
+gc.MultithreadedDestructionEnabled=0
+ 
+[/script/engine.engine]
+bSmoothFrameRate=true
+
+[CrashReportClient]
+bAgreeToCrashUpload=false
+bImplicitSend=False
+
+[Core.Log]
+LogPluginManager=all off
+LogOnlineIdentity=all off
+LogOnlineSession=all off
+LogMemory=all off
+LogMemory=all off
+LogMemory=all off
+LogPakFile=all off
+LogTemp=all off
+LogLinker=all off
+LogOnline=all off
+LogOnlineGame=all off
+LogAnalytics=all off
+LogConfig=all off
+LogInteractiveProcess=all off
+LogInput=all off
+LogOnlineEntitlement=all off
+LogOnlineEvents=all off
+LogOnlineFriend=all off
+LogOnlinePresence=all off
+LogOnlineTitleFile=all off
+LogOnlineUser=all off
+LogGarbage=all off
+LogPIE=all off
+Global=off</value>
+  </data>
+  <data name="Profile4" xml:space="preserve">
+    <value>[SystemSettings]
+r.VT.MaxAnisotropy=16
+r.MaxAnisotropy=16
+r.PostProcessAAQuality=6
+r.TemporalAA.Algorithm=1
+r.TemporalAASharpness=0.0
+r.TemporalAASamples=64
+r.TemporalAADynamicSharpen=0.0
+r.TemporalAACurrentFrameWeight=0.00 
+r.Tonemapper.GrainQuantization=0
+r.ToneMapper.Sharpen=0.0
+r.Shadow.Denoiser=1
+r.AmbientOcclusion.Denoiser=1
+r.Shadow.RadiusThreshold=0
+r.Shadow.MaxResolution=4096
+r.Shadow.MinResolution=4096
+r.Shadow.MaxCSMResolution=4096
+r.Shadow.MinCSMResolution=4096
+r.LevelStreamingDistanceScale=10
+r.ViewDistanceScale=10
+r.StaticMeshLODDistanceScale=0.25
+r.SkeletalMeshLODBias=-3
+r.LandscapeLODBias=-1
+r.LandscapeLODDistributionScale=3
+r.LandscapeLOD0DistributionScale=3
+r.LODFadeTime=2
+r.UITextureLODBias=-1
+r.Reflections.Denoiser=2
+r.SSR.MaxRoughness=0.8
+r.SSR.Temporal=1
+r.LightMaxDrawDistanceScale=2
+r.HighQualityLightMaps=1
+rhi.SyncInterval=1
+rhi.SyncSlackMS=0
+r.GTSyncType=2
+r.OneFrameThreadLag=1
+r.VSync=1
+r.Streaming.NumStaticComponentsProcessedPerFrame=10
+s.LevelStreamingComponentsUnregistrationGranularity=5
+s.LevelStreamingComponentsRegistrationGranularity=5
+s.AsyncLoadingTimeLimit=2
+s.PriorityAsyncLoadingExtraTime=1
+s.UnregisterComponentsTimeLimit=2
+s.LevelStreamingActorsUpdateTimeLimit=2
+s.PriorityLevelStreamingActorsUpdateExtraTime=1
+s.ContinuouslyIncrementalGCWhileLevelsPendingPurge=0
+s.ForceGCAfterLevelStreamedOut=0
+gc.MultithreadedDestructionEnabled=0
+
+[/script/engine.engine]
+bSmoothFrameRate=true
+
+[CrashReportClient]
+bAgreeToCrashUpload=false
+bImplicitSend=False
+
+[Core.Log]
+LogPluginManager=all off
+LogOnlineIdentity=all off
+LogOnlineSession=all off
+LogMemory=all off
+LogMemory=all off
+LogMemory=all off
+LogPakFile=all off
+LogTemp=all off
+LogLinker=all off
+LogOnline=all off
+LogOnlineGame=all off
+LogAnalytics=all off
+LogConfig=all off
+LogInteractiveProcess=all off
+LogInput=all off
+LogOnlineEntitlement=all off
+LogOnlineEvents=all off
+LogOnlineFriend=all off
+LogOnlinePresence=all off
+LogOnlineTitleFile=all off
+LogOnlineUser=all off
+LogGarbage=all off
+LogPIE=all off
+Global=off</value>
+  </data>
+  <data name="Profile5" xml:space="preserve">
+    <value>[SystemSettings]
+r.VT.MaxAnisotropy=16
+r.MaxAnisotropy=16
+r.PostProcessAAQuality=6
+r.TemporalAA.Algorithm=1
+r.TemporalAASharpness=0.0
+r.TemporalAADynamicSharpen=0.0
+r.Tonemapper.GrainQuantization=0
+r.ToneMapper.Sharpen=2.0
+r.Shadow.Denoiser=1
+r.AmbientOcclusion.Denoiser=1
+r.Shadow.RadiusThreshold=0
+r.Shadow.MaxResolution=4096
+r.Shadow.MinResolution=4096
+r.Shadow.MaxCSMResolution=4096
+r.Shadow.MinCSMResolution=4096
+r.LevelStreamingDistanceScale=10
+r.ViewDistanceScale=10
+r.StaticMeshLODDistanceScale=0.25
+r.SkeletalMeshLODBias=-3
+r.LandscapeLODBias=-1
+r.LandscapeLODDistributionScale=3
+r.LandscapeLOD0DistributionScale=3
+r.LODFadeTime=2
+r.UITextureLODBias=-1
+r.Reflections.Denoiser=2
+r.SSR.MaxRoughness=1
+r.SSR.Temporal=1
+r.LightMaxDrawDistanceScale=2
+r.HighQualityLightMaps=1
+rhi.SyncInterval=1
+rhi.SyncSlackMS=0
+r.GTSyncType=2
+r.OneFrameThreadLag=1
+r.VSync=1
+r.EarlyZPass=0
+r.TextureStreaming=0
+r.Streaming.PoolSize=0
+r.Shadow.WholeSceneShadowCacheMb=1024
+s.IoDispatcherCacheSizeMB=256
+s.TimeLimitExceededMultiplier=0.1
+s.TimeLimitExceededMinTime=0.001
+﻿s.PriorityAsyncLoadingExtraTime=0
+s.PriorityLevelStreamingActorsUpdateExtraTime=0
+s.LevelStreamingComponentsRegistrationGranularity=1
+s.LevelStreamingComponentsUnregistrationGranularity=1
+s.UnregisterComponentsTimeLimit=0.1
+s.AsyncLoadingTimeLimit=0.1
+s.LevelStreamingActorsUpdateTimeLimit=0.1
+s.AsyncLoadingUseFullTimeLimit=0
+s.MaxIncomingRequestsToStall=1
+s.MaxReadyRequestsToStallMB=0
+s.MinBulkDataSizeForAsyncLoading=0
+gc.CreateGCClusters=True
+gc.MinGCClusterSize=10
+gc.ActorClusteringEnabled=False
+gc.BlueprintClusteringEnabled=False
+gc.AssetClusteringEnabled=False
+gc.IncrementalBeginDestroyEnabled=True
+gc.OnlyNonLODLevelsTriggerGC=1
+gc.OnlyNonLODLevelsTriggerGC=True
+gc.FlushStreamingOnGC=False
+gc.AllowParallelGC=True
+gc.MaxObjectsNotConsideredByGC=0
+gc.MinDesiredObjectsPerSubTask=128
+gc.NumRetriesBeforeForcingGC=10
+gc.LowMemory.MemoryThresholdMB=0
+gc.LowMemory.TimeBetweenPurgingPendingKillObjects=7200
+gc.LowMemory.TimeBetweenPurgingPendingLevels=7200
+gc.TimeBetweenPurgingPendingKillObjects=7200
+s.ForceGCAfterLevelStreamedOut=0
+s.ContinuouslyIncrementalGCWhileLevelsPendingPurge=0</value>
+  </data>
+</root>

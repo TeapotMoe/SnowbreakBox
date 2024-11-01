@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowbreakBox", "SnowbreakBox.csproj", "{2B975BA4-9D08-4D28-9E3C-2385DB98F750}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B975BA4-9D08-4D28-9E3C-2385DB98F750}.Debug|x64.ActiveCfg = Debug|x64
+		{2B975BA4-9D08-4D28-9E3C-2385DB98F750}.Debug|x64.Build.0 = Debug|x64
+		{2B975BA4-9D08-4D28-9E3C-2385DB98F750}.Release|x64.ActiveCfg = Release|x64
+		{2B975BA4-9D08-4D28-9E3C-2385DB98F750}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0D08A5F5-22CF-41FB-8AA3-EC56F0BDA333}
+	EndGlobalSection
+EndGlobal
