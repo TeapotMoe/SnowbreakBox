@@ -11,13 +11,13 @@ namespace SnowbreakBox {
 		private string localizationTxtPath;
 		private string engineIniPath;
 
-        // gameFolder 可能是尘白启动器根目录或西山居启动器根目录或游戏根目录
-        bool FindPaths(string gameFolder) {
+		// gameFolder 可能是尘白启动器根目录或西山居启动器根目录或游戏根目录
+		bool FindPaths(string gameFolder) {
 			if (!Directory.Exists(gameFolder)) {
 				return false;
 			}
-            
-            string realGameFolder;
+			
+			string realGameFolder;
 
 			if (File.Exists(Path.Combine(gameFolder, "data\\game\\Game\\Binaries\\Win64\\game.exe"))) {
 				// 尘白启动器
@@ -26,22 +26,22 @@ namespace SnowbreakBox {
 				// 西山居启动器，且尘白安装在启动器内
 				realGameFolder = Path.Combine(gameFolder, "Game\\cbjq");
 			} else if (File.Exists(Path.Combine(gameFolder, "game\\Game\\Binaries\\Win64\\game.exe"))) {
-                // 游戏根目录
-                realGameFolder = gameFolder;
+				// 游戏根目录
+				realGameFolder = gameFolder;
 			} else {
 				return false;
 			}
 
-            localizationTxtPath = Path.Combine(realGameFolder, "localization.txt");
+			localizationTxtPath = Path.Combine(realGameFolder, "localization.txt");
 
-            // 不同启动器/版本 Engine.ini 位置也不同
-            engineIniPath = Path.Combine(realGameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
+			// 不同启动器/版本 Engine.ini 位置也不同
+			engineIniPath = Path.Combine(realGameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
 			if (!File.Exists(engineIniPath)) {
 				// Saved 目录可能不在 game 目录里
-                engineIniPath = Path.Combine(realGameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
+				engineIniPath = Path.Combine(realGameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
 				if (!File.Exists(engineIniPath)) {
-                    // Engine.ini 也可能在 AppData 里
-                    engineIniPath = Path.Combine(
+					// Engine.ini 也可能在 AppData 里
+					engineIniPath = Path.Combine(
 						Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 						"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
 					);
@@ -71,13 +71,13 @@ namespace SnowbreakBox {
 
 			// 西山居启动器
 			// 不确定盘符，只测试 C 盘
-            if (FindPaths("C:\\SeasunCBJQos")) {
-                Settings.Default["GameFolder"] = gameFolder;
-                Settings.Default.Save();
-                return true;
-            }
+			if (FindPaths("C:\\SeasunCBJQos")) {
+				Settings.Default["GameFolder"] = gameFolder;
+				Settings.Default.Save();
+				return true;
+			}
 
-            FolderBrowserDialog dialog = new FolderBrowserDialog {
+			FolderBrowserDialog dialog = new FolderBrowserDialog {
 				RootFolder = Environment.SpecialFolder.MyComputer,
 				Description = "未检测到游戏，请手动选择启动器或游戏根目录"
 			};
