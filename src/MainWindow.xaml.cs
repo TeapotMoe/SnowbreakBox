@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using System.Windows.Navigation;
 
 namespace SnowbreakBox {
 	public partial class MainWindow : System.Windows.Window {
@@ -186,5 +187,10 @@ namespace SnowbreakBox {
 				ShowError("操作失败：" + ex.Message);
 			}
 		}
-	}
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
+        }
+    }
 }
