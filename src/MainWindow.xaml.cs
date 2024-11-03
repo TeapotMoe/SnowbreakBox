@@ -123,8 +123,32 @@ namespace SnowbreakBox {
 			}
 		}
 
+		private int GetGraphicState() {
+			// 游戏启动时会修改 Engine.ini，删除注释并重新排列条目，很难根据 Engine.ini
+			// 判断画质等级。因此我们将画质等级保存为设置。
+			int setting = (int)Settings.Default["GraphicState"];
+			if (setting == 0) {
+				return 0;
+			}
+
+			try {
+				// 判断有没有画质补丁相对容易
+				using (StreamReader sr = new StreamReader(engineIniPath)) {
+					string content = sr.ReadToEnd();
+					if (content.IndexOf("[SystemSettings]") == -1) {
+						return 0;
+					} else {
+						return setting;
+					}
+				}
+			} catch {
+				return 0;
+			}
+		}
+
 		private static void ShowError(string msg) {
-			System.Windows.MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+			System.Windows.MessageBox.Show(
+				msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 
 		public MainWindow() {
@@ -156,7 +180,7 @@ namespace SnowbreakBox {
 			uncensorCheckBox.Unchecked += UncensorCheckBox_Unchecked;
 
 			graphicComboBox.SelectionChanged -= GraphicComboBox_SelectionChanged;
-			graphicComboBox.SelectedIndex = (int)Settings.Default["GraphicState"];
+			graphicComboBox.SelectedIndex = GetGraphicState();
 			graphicComboBox.SelectionChanged += GraphicComboBox_SelectionChanged;
 		}
 
@@ -200,7 +224,7 @@ namespace SnowbreakBox {
 				Settings.Default.Save();
 			} catch (Exception ex) {
 				graphicComboBox.SelectionChanged -= GraphicComboBox_SelectionChanged;
-				graphicComboBox.SelectedIndex = (int)Settings.Default["GraphicState"];
+				graphicComboBox.SelectedIndex = GetGraphicState();
 				graphicComboBox.SelectionChanged += GraphicComboBox_SelectionChanged;
 				ShowError("操作失败：" + ex.Message);
 			}
