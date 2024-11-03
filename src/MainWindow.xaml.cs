@@ -13,9 +13,9 @@ namespace SnowbreakBox {
 		private string engineIniPath;
 
 		// gameFolder 可能是尘白启动器根目录或西山居启动器根目录或游戏根目录
-		bool FindPaths(string gameFolder) {
+		string FindPaths(string gameFolder) {
 			if (!Directory.Exists(gameFolder)) {
-				return false;
+				return "路径不存在";
 			}
 			
 			string realGameFolder;
@@ -30,7 +30,7 @@ namespace SnowbreakBox {
 				// 游戏根目录
 				realGameFolder = gameFolder;
 			} else {
-				return false;
+				return "未找到游戏";
 			}
 
 			// 不检查 localization.txt 是否存在，如果不存在我们便创建一个
@@ -49,24 +49,24 @@ namespace SnowbreakBox {
 						"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
 					);
 					if (!File.Exists(engineIniPath)) {
-						return false;
+						return "未找到 Engine.ini";
 					}
 				}
 			}
 
-			return true;
+			return null;
 		}
 
 		private bool SelectGameFolder() {
 			string gameFolder = Settings.Default["GameFolder"] as string;
-			if (FindPaths(gameFolder)) {
+			if (FindPaths(gameFolder) == null) {
 				return true;
 			}
 
 			// 尘白启动器
 			gameFolder = Path.Combine(
 				Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Snow");
-			if (FindPaths(gameFolder)) {
+			if (FindPaths(gameFolder) == null) {
 				Settings.Default["GameFolder"] = gameFolder;
 				Settings.Default.Save();
 				return true;
@@ -74,7 +74,7 @@ namespace SnowbreakBox {
 
 			// 西山居启动器
 			// 不确定盘符，只测试 C 盘
-			if (FindPaths("C:\\SeasunCBJQos")) {
+			if (FindPaths("C:\\SeasunCBJQos") == null) {
 				Settings.Default["GameFolder"] = gameFolder;
 				Settings.Default.Save();
 				return true;
@@ -86,21 +86,23 @@ namespace SnowbreakBox {
 			};
 
 			while (true) {
-				if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) {
+				// 使弹窗位于前台
+				NativeWindow win32Parent = new NativeWindow();
+				win32Parent.AssignHandle(new WindowInteropHelper(this).Handle);
+				if (dialog.ShowDialog(win32Parent) != System.Windows.Forms.DialogResult.OK) {
 					return false;
 				}
 
 				gameFolder = dialog.SelectedPath;
-				if (FindPaths(gameFolder)) {
-					break;
-				} else {
-					dialog.Description = "路径无效，请重新选择启动器或游戏根目录";
-				}
-			}
 
-			Settings.Default["GameFolder"] = gameFolder;
-			Settings.Default.Save();
-			return true;
+				string msg = FindPaths(gameFolder);
+				if (msg == null) {
+					Settings.Default["GameFolder"] = gameFolder;
+					Settings.Default.Save();
+					return true;
+				}
+				dialog.Description = "路径无效，请重新选择启动器或游戏根目录：" + msg;
+			}
 		}
 
 		private bool IsGameRunning() {
@@ -152,11 +154,6 @@ namespace SnowbreakBox {
 		}
 
 		public MainWindow() {
-			if (!SelectGameFolder()) {
-				App.Current.Shutdown();
-				return;
-			}
-
 			if (IsGameRunning()) {
 				ShowError("游戏正在运行！");
 				App.Current.Shutdown();
@@ -169,19 +166,24 @@ namespace SnowbreakBox {
 					new WindowInteropHelper(this).Handle,
 					NativeMethods.WindowThemeNonClientAttributes.NoSysMenu | NativeMethods.WindowThemeNonClientAttributes.NoDrawIcon
 				);
+
+				if (!SelectGameFolder()) {
+					Close();
+					return;
+				}
+
+				uncensorCheckBox.Checked -= UncensorCheckBox_Checked;
+				uncensorCheckBox.Unchecked -= UncensorCheckBox_Unchecked;
+				uncensorCheckBox.IsChecked = !GetCensorState();
+				uncensorCheckBox.Checked += UncensorCheckBox_Checked;
+				uncensorCheckBox.Unchecked += UncensorCheckBox_Unchecked;
+
+				graphicComboBox.SelectionChanged -= GraphicComboBox_SelectionChanged;
+				graphicComboBox.SelectedIndex = GetGraphicState();
+				graphicComboBox.SelectionChanged += GraphicComboBox_SelectionChanged;
 			};
 
 			InitializeComponent();
-
-			uncensorCheckBox.Checked -= UncensorCheckBox_Checked;
-			uncensorCheckBox.Unchecked -= UncensorCheckBox_Unchecked;
-			uncensorCheckBox.IsChecked = !GetCensorState();
-			uncensorCheckBox.Checked += UncensorCheckBox_Checked;
-			uncensorCheckBox.Unchecked += UncensorCheckBox_Unchecked;
-
-			graphicComboBox.SelectionChanged -= GraphicComboBox_SelectionChanged;
-			graphicComboBox.SelectedIndex = GetGraphicState();
-			graphicComboBox.SelectionChanged += GraphicComboBox_SelectionChanged;
 		}
 
 		private void UncensorCheckBox_Checked(object sender, RoutedEventArgs e) {
