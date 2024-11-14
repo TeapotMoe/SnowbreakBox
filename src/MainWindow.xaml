@@ -13,6 +13,8 @@
                  MouseDown="FluentWindow_MouseDown"
                  ResizeMode="NoResize"
                  SizeToContent="Height"
+				 WindowBackdropType="Mica"
+				 ExtendsContentIntoTitleBar="True"
                  WindowStartupLocation="CenterScreen"
                  mc:Ignorable="d">
 	<Grid>
