@@ -77,7 +77,7 @@ namespace SnowbreakBox {
 			}
 		}
 
-		// userSelectedFolder 可能是尘白启动器根目录、西山居启动器根目录或游戏根目录
+		// testFolder 可能是尘白启动器根目录、西山居启动器根目录或游戏根目录
 		private string FindPaths(string testFolder) {
 			if (!Directory.Exists(testFolder)) {
 				return "路径不存在";
@@ -202,7 +202,7 @@ namespace SnowbreakBox {
 			base.OnSourceInitialized(e);
 
 			if (string.IsNullOrEmpty(GameFolder) && !SelectGameFolder()) {
-				// 如果在 SourceInitialized 中处理，关闭窗口会导致崩溃
+				// 如果在 SourceInitialized 事件回调中处理，调用 Close 会导致崩溃
 				Close();
 				return;
 			}
