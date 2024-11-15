@@ -191,24 +191,21 @@ namespace SnowbreakBox {
 
 			GuessGameFolder();
 
-			// 隐藏标题栏图标
-			SourceInitialized += delegate {
-				NativeMethods.SetWindowThemeAttribute(
-					new WindowInteropHelper(this).Handle,
-					NativeMethods.WindowThemeNonClientAttributes.NoSysMenu | NativeMethods.WindowThemeNonClientAttributes.NoDrawIcon
-				);
-
-				if (string.IsNullOrEmpty(GameFolder) && !SelectGameFolder()) {
-					Close();
-					return;
-				}
-			};
-
 			Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
 
 			DataContext = this;
 
 			InitializeComponent();
+		}
+
+		protected override void OnSourceInitialized(EventArgs e) {
+			base.OnSourceInitialized(e);
+
+			if (string.IsNullOrEmpty(GameFolder) && !SelectGameFolder()) {
+				// 如果在 SourceInitialized 中处理，关闭窗口会导致崩溃
+				Close();
+				return;
+			}
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
