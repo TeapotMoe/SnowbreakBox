@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using SnowbreakBox.Properties;
 using System;
 using System.ComponentModel;
@@ -180,6 +181,15 @@ namespace SnowbreakBox {
 		private static void ShowError(string msg) {
 			System.Windows.MessageBox.Show(
 				msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+
+		private void DetectGame() {
+			// 检测经典启动器
+			try {
+				string launcherPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ProjectSnow", "DisplayIcon", null) as string;
+
+			} catch (Exception ex) {
+			}
 		}
 
 		public MainWindow() {
