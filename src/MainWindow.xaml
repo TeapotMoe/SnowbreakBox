@@ -37,6 +37,21 @@
 		<StackPanel Margin="20,10,20,20">
 			<ui:TextBlock Margin="0,0,0,8"
 			              FontTypography="BodyStrong"
+			              Text="游戏路径" />
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				<ui:TextBox x:Name="gameFolderTextBox"
+				            Grid.Column="0"
+				            IsReadOnly="True"
+				            IsReadOnlyCaretVisible="True"
+				            Text="{Binding GameFolder, Mode=OneTime}" />
+			</Grid>
+
+			<ui:TextBlock Margin="0,20,0,8"
+			              FontTypography="BodyStrong"
 			              Text="游戏配置" />
 			<ui:Card>
 				<Grid MinHeight="30">
@@ -100,20 +115,32 @@
 				</StackPanel>
 			</ui:Card>
 
-			<ui:TextBlock Margin="0,20,0,6"
-			              FontTypography="BodyStrong"
-			              Text="链接" />
-			<StackPanel Orientation="Horizontal">
-				<ui:HyperlinkButton Padding="4"
-				                    Content="主页"
-				                    Cursor="Hand"
-				                    NavigateUri="https://github.com/TeapotMoe/SnowbreakBox" />
-				<ui:HyperlinkButton Margin="4,0,0,0"
-				                    Padding="4"
-				                    Content="尘白禁区吧"
-				                    Cursor="Hand"
-				                    NavigateUri="https://tieba.baidu.com/f?kw=尘白禁区" />
-			</StackPanel>
+			<Grid>
+				<StackPanel Orientation="Vertical">
+					<ui:TextBlock Margin="0,20,0,6"
+					              FontTypography="BodyStrong"
+					              Text="链接" />
+					<StackPanel Orientation="Horizontal">
+						<ui:HyperlinkButton Padding="4"
+						                    Content="主页"
+						                    Cursor="Hand"
+						                    NavigateUri="https://github.com/TeapotMoe/SnowbreakBox" />
+						<ui:HyperlinkButton Margin="4,0,0,0"
+						                    Padding="4"
+						                    Content="尘白禁区吧"
+						                    Cursor="Hand"
+						                    NavigateUri="https://tieba.baidu.com/f?kw=尘白禁区" />
+					</StackPanel>
+				</StackPanel>
+				<ui:Button Padding="24,10,28,10"
+				           HorizontalAlignment="Right"
+				           VerticalAlignment="Bottom"
+				           Appearance="Primary"
+				           Content="启动游戏"
+				           FontSize="20"
+						   Click="LaunchButton_Click"
+				           Icon="{ui:SymbolIcon 'Play32'}" />
+			</Grid>
 		</StackPanel>
 	</StackPanel>
 </ui:FluentWindow>

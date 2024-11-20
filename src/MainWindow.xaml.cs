@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using SnowbreakBox.Properties;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Forms;
@@ -10,15 +11,20 @@ using System.Windows.Interop;
 
 namespace SnowbreakBox {
 	public partial class MainWindow : INotifyPropertyChanged {
-		private string _localizationTxtPath;
 		private string _engineIniPath;
+
+		private enum LauncherType {
+			Classic,
+			Seasun
+		}
+		LauncherType _launcherType;
 
 		public string GameFolder { get; set; }
 
 		public bool IsCensorDisabled {
 			get {
 				try {
-					using (StreamReader sr = new StreamReader(_localizationTxtPath)) {
+					using (StreamReader sr = new StreamReader(Path.Combine(GameFolder, "localization.txt"))) {
 						string line = sr.ReadLine();
 						var pair = line.Split('=');
 						if (pair.Length != 2) {
@@ -33,7 +39,7 @@ namespace SnowbreakBox {
 			}
 			set {
 				try {
-					File.WriteAllText(_localizationTxtPath, value ? "localization = 1" : "localization = 0");
+					File.WriteAllText(Path.Combine(GameFolder, "localization.txt"), value ? "localization = 1" : "localization = 0");
 				} catch (Exception ex) {
 					ShowError(ex.Message);
 				}
@@ -178,15 +184,14 @@ namespace SnowbreakBox {
 			}
 
 			if (classicDetected) {
+				_launcherType = LauncherType.Classic;
 				GameFolder = classicGameFolder;
 				_engineIniPath = classicEngineIniPath;
 			} else {
+				_launcherType= LauncherType.Seasun;
 				GameFolder = seasunGameFolder;
 				_engineIniPath = seasunEngineIniPath;
 			}
-
-			// 不检查 localization.txt 是否存在，如果不存在我们便创建一个
-			_localizationTxtPath = Path.Combine(GameFolder, "localization.txt");
 
 			return true;
 		}
@@ -221,6 +226,34 @@ namespace SnowbreakBox {
 			// 取消控件的焦点
 			// https://stackoverflow.com/a/2914599
 			FocusManager.SetFocusedElement(FocusManager.GetFocusScope(this), this);
+		}
+
+		private void LaunchButton_Click(object sender, RoutedEventArgs e) {
+			string arguments = "-FeatureLevelES31 -ChannelID=jinshan ";
+			// 两个启动器传递路径的做法都是错的，这导致了存档路径的混乱。为了使用现有存档，我们只能将错就错。
+			if (_launcherType == LauncherType.Classic) {
+				// 经典启动器在路径两边加反斜杠和双引号
+				arguments += "\"-userdir=\\\"";
+				arguments += Path.Combine(GameFolder, "game");
+				arguments += "\\\"\"";
+			} else {
+				// 西山居启动器不加双引号
+				arguments += "-userdir=";
+				arguments += Path.Combine(GameFolder, "game");
+			}
+
+			ProcessStartInfo startInfo = new ProcessStartInfo {
+				WorkingDirectory = Path.Combine(GameFolder, "game\\Game\\Binaries\\Win64"),
+				FileName = "game.exe",
+				Arguments = arguments,
+				UseShellExecute = true
+			};
+
+			try {
+				Process.Start(startInfo);
+			} catch (Exception ex) {
+				ShowError(ex.Message);
+			}
 		}
 	}
 }
