@@ -78,102 +78,6 @@ namespace SnowbreakBox {
 			}
 		}
 
-		// testFolder 可能是尘白启动器根目录、西山居启动器根目录或游戏根目录
-		private string FindPaths(string testFolder) {
-			if (!Directory.Exists(testFolder)) {
-				return "路径不存在";
-			}
-
-			string gameFolder;
-			if (File.Exists(Path.Combine(testFolder, "data\\game\\Game\\Binaries\\Win64\\game.exe"))) {
-				// 尘白启动器
-				gameFolder = Path.Combine(testFolder, "data");
-			} else if (File.Exists(Path.Combine(testFolder, "Game\\cbjq\\game\\Game\\Binaries\\Win64\\game.exe"))) {
-				// 西山居启动器，且尘白安装在启动器内
-				gameFolder = Path.Combine(testFolder, "Game\\cbjq");
-			} else if (File.Exists(Path.Combine(testFolder, "game\\Game\\Binaries\\Win64\\game.exe"))) {
-				// 游戏根目录
-				gameFolder = testFolder;
-			} else {
-				return "未找到游戏";
-			}
-
-			// 不检查 localization.txt 是否存在，如果不存在我们便创建一个
-			_localizationTxtPath = Path.Combine(gameFolder, "localization.txt");
-			
-			// 不同启动器/版本 Engine.ini 位置也不同
-			// 必须启动一次游戏才能保证 Engine.ini 存在！
-			_engineIniPath = Path.Combine(gameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
-			if (!File.Exists(_engineIniPath)) {
-				// Saved 目录可能不在 game 目录里
-				_engineIniPath = Path.Combine(gameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
-				if (!File.Exists(_engineIniPath)) {
-					// Engine.ini 也可能在 AppData 里
-					_engineIniPath = Path.Combine(
-						Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-						"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
-					);
-					if (!File.Exists(_engineIniPath)) {
-						return "未找到 Engine.ini";
-					}
-				}
-			}
-
-			GameFolder = gameFolder;
-			OnPropertyChanged(nameof(GameFolder));
-			OnPropertyChanged(nameof(IsCensorDisabled));
-			OnPropertyChanged(nameof(GraphicState));
-
-			Settings.Default["GameFolder"] = GameFolder;
-			Settings.Default.Save();
-
-			return null;
-		}
-
-		private bool GuessGameFolder() {
-			string gameFolder = Settings.Default["GameFolder"] as string;
-			if (FindPaths(gameFolder) == null) {
-				return true;
-			}
-
-			// 尘白启动器
-			gameFolder = Path.Combine(
-				Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Snow");
-			if (FindPaths(gameFolder) == null) {
-				return true;
-			}
-
-			// 西山居启动器
-			// 不确定盘符，只测试 C 盘
-			if (FindPaths("C:\\SeasunCBJQos") == null) {
-				return true;
-			}
-
-			return false;
-		}
-
-		private bool SelectGameFolder() {
-			FolderBrowserDialog dialog = new FolderBrowserDialog {
-				RootFolder = Environment.SpecialFolder.MyComputer,
-				Description = "未检测到游戏，请手动选择启动器或游戏根目录"
-			};
-
-			while (true) {
-				// 使弹窗位于前台
-				NativeWindow win32Parent = new NativeWindow();
-				win32Parent.AssignHandle(new WindowInteropHelper(this).Handle);
-				if (dialog.ShowDialog(win32Parent) != System.Windows.Forms.DialogResult.OK) {
-					return false;
-				}
-
-				string msg = FindPaths(dialog.SelectedPath);
-				if (msg == null) {
-					return true;
-				}
-				dialog.Description = "路径无效，请重新选择启动器或游戏根目录：" + msg;
-			}
-		}
-
 		private bool IsGameRunning() {
 			return NativeMethods.FindWindow("UnrealWindow", "尘白禁区") != IntPtr.Zero;
 		}
@@ -183,13 +87,108 @@ namespace SnowbreakBox {
 				msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 
-		private void DetectGame() {
-			// 检测经典启动器
-			try {
-				string launcherPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ProjectSnow", "DisplayIcon", null) as string;
+		private bool FindGame(
+			string launcherRegKey,
+			string gameRegKey,
+			bool checkTruncatedPath,
+			out string launcherPath,
+			out string gameFolder,
+			out string engineIniPath
+		) {
+			launcherPath = null;
+			gameFolder = null;
+			engineIniPath = null;
 
-			} catch (Exception ex) {
+			try {
+				launcherPath = Registry.GetValue(launcherRegKey, "DisplayIcon", null) as string;
+				if (!File.Exists(launcherPath)) {
+					return false;
+				}
+
+				gameFolder = Registry.GetValue(gameRegKey, "InstallPath", null) as string;
+				if (!File.Exists(Path.Combine(gameFolder, "game\\Game\\Binaries\\Win64\\game.exe"))) {
+					return false;
+				}
+
+				// 检查存档，可能位于游戏文件夹内或 %LocalAppData%，应优先检查游戏文件夹
+				engineIniPath = Path.Combine(gameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
+				if (!File.Exists(engineIniPath)) {
+					// Saved 目录可能不在 game 目录里，旧版西山居启动器使用这个路径
+					engineIniPath = Path.Combine(gameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
+					if (!File.Exists(engineIniPath)) {
+						if (checkTruncatedPath) {
+							// 西山居启动器 v1.7.7 存在 bug，游戏路径中如果存在空格会被截断，比如如果游戏安装在
+							// C:\Program Files\Snow，存档会被保存在 C:\Program\Saved。
+							int spaceIdx = gameFolder.IndexOf(' ');
+							engineIniPath = Path.Combine(
+								spaceIdx == -1 ? gameFolder : gameFolder.Substring(0, spaceIdx),
+								"Saved",
+								"Config\\WindowsNoEditor\\Engine.ini"
+							);
+						}
+
+						if (!(checkTruncatedPath && File.Exists(engineIniPath))) {
+							// 检查 %LocalAppData%，如果游戏路径中如果存在空格，经典启动器会把存档保存在这里
+							engineIniPath = Path.Combine(
+								Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+								"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
+							);
+							if (!File.Exists(engineIniPath)) {
+								return false;
+							}
+						}
+					}
+				}
+			} catch (Exception) {
+				return false;
 			}
+
+			return true;
+		}
+
+		private bool DetectGame() {
+			// 检测经典启动器
+			bool classicDetected = FindGame(
+				"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ProjectSnow",
+				"HKEY_LOCAL_MACHINE\\SOFTWARE\\Kingsoft\\cbjq",
+				false,
+				out string classicLauncherPath,
+				out string classicGameFolder,
+				out string classicEngineIniPath
+			);
+			// 检测西山居启动器
+			bool seasunDetected = FindGame(
+				"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\SeasunGameCBJQos",
+				"HKEY_LOCAL_MACHINE\\SOFTWARE\\Kingsoft\\SeasunGameSSG\\cbjq",
+				true,
+				out string seasunLauncherPath,
+				out string seasunGameFolder,
+				out string seasunEngineIniPath
+			);
+
+			if (classicDetected && seasunDetected) {
+				// 检测到两个启动器，选上次使用时间更近的那一个
+				if (File.GetLastAccessTime(classicLauncherPath) < File.GetLastAccessTime(seasunLauncherPath)) {
+					classicDetected = false;
+				} else {
+					seasunDetected = false;
+				}
+			} else if (!classicDetected && !seasunDetected) {
+				return false;
+			}
+
+			if (classicDetected) {
+				GameFolder = classicGameFolder;
+				_engineIniPath = classicEngineIniPath;
+			} else {
+				GameFolder = seasunGameFolder;
+				_engineIniPath = seasunEngineIniPath;
+			}
+
+			// 不检查 localization.txt 是否存在，如果不存在我们便创建一个
+			_localizationTxtPath = Path.Combine(GameFolder, "localization.txt");
+
+			return true;
 		}
 
 		public MainWindow() {
@@ -199,7 +198,11 @@ namespace SnowbreakBox {
 				return;
 			}
 
-			GuessGameFolder();
+			if (!DetectGame()) {
+				ShowError("未检测到游戏，请确保游戏已经安装！");
+				App.Current.Shutdown();
+				return;
+			}
 
 			Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
 
@@ -208,24 +211,10 @@ namespace SnowbreakBox {
 			InitializeComponent();
 		}
 
-		protected override void OnSourceInitialized(EventArgs e) {
-			base.OnSourceInitialized(e);
-
-			if (string.IsNullOrEmpty(GameFolder) && !SelectGameFolder()) {
-				// 如果在 SourceInitialized 事件回调中处理，调用 Close 会导致崩溃
-				Close();
-				return;
-			}
-		}
-
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		protected virtual void OnPropertyChanged(string propertyName) {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
-
-		private void EditGameFolderButton_Click(object sender, RoutedEventArgs e) {
-			SelectGameFolder();
 		}
 
 		private void FluentWindow_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {

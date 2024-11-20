@@ -37,28 +37,6 @@
 		<StackPanel Margin="20,10,20,20">
 			<ui:TextBlock Margin="0,0,0,8"
 			              FontTypography="BodyStrong"
-			              Text="游戏路径" />
-			<Grid>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="Auto" />
-				</Grid.ColumnDefinitions>
-				<ui:TextBox x:Name="gameFolderTextBox"
-				            Grid.Column="0"
-				            IsReadOnly="True"
-				            IsReadOnlyCaretVisible="True"
-				            Text="{Binding GameFolder, Mode=OneWay}" />
-				<ui:Button Grid.Column="1"
-				           Margin="4,0,0,0"
-				           Click="EditGameFolderButton_Click"
-				           ToolTip="修改">
-					<ui:SymbolIcon FontSize="20"
-					               Symbol="Edit20" />
-				</ui:Button>
-			</Grid>
-
-			<ui:TextBlock Margin="0,20,0,8"
-			              FontTypography="BodyStrong"
 			              Text="游戏配置" />
 			<ui:Card>
 				<Grid MinHeight="30">
