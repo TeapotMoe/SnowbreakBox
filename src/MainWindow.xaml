@@ -136,9 +136,9 @@
 				           HorizontalAlignment="Right"
 				           VerticalAlignment="Bottom"
 				           Appearance="Primary"
+				           Click="LaunchButton_Click"
 				           Content="启动游戏"
 				           FontSize="20"
-						   Click="LaunchButton_Click"
 				           Icon="{ui:SymbolIcon 'Play32'}" />
 			</Grid>
 		</StackPanel>
