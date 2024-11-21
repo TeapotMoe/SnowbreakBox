@@ -14,7 +14,7 @@ namespace SnowbreakBox {
 		private string _launcherPath;
 		private string _engineIniPath;
 		private readonly HttpClient _httpClient = new HttpClient();
-		private readonly Task _fetchRemoteGameVersionTask;
+		private Task<Version> _fetchRemoteGameVersionTask;
 
 		private enum LauncherType {
 			Classic,
@@ -105,6 +105,15 @@ namespace SnowbreakBox {
 					OnPropertyChanged(nameof(UpdateButtonVisibility));
 				}
 			}
+		}
+
+		private void WaitForCheckingGameUpdate() {
+			if(_fetchRemoteGameVersionTask == null) {
+				return;
+			}
+
+			GameHasUpdate = _fetchRemoteGameVersionTask.Result > new Version(2, 0);
+			_fetchRemoteGameVersionTask = null;
 		}
 
 		public Visibility LaunchButtonVisibility {
@@ -266,16 +275,14 @@ namespace SnowbreakBox {
 				arguments += Path.Combine(GameFolder, "game");
 			}
 
-			// 工作目录为程序所在目录
-			ProcessStartInfo startInfo = new ProcessStartInfo {
-				WorkingDirectory = Path.Combine(GameFolder, "game\\Game\\Binaries\\Win64"),
-				FileName = "game.exe",
-				Arguments = arguments,
-				UseShellExecute = true
-			};
-
 			try {
-				Process.Start(startInfo);
+				// 工作目录为程序所在目录
+				Process.Start(new ProcessStartInfo {
+					WorkingDirectory = Path.Combine(GameFolder, "game\\Game\\Binaries\\Win64"),
+					FileName = "game.exe",
+					Arguments = arguments,
+					UseShellExecute = true
+				});
 			} catch (Exception ex) {
 				ShowError(ex.Message);
 				return false;
@@ -285,15 +292,13 @@ namespace SnowbreakBox {
 		}
 
 		private bool LaunchGameLauncher() {
-			// 工作目录为程序所在目录
-			ProcessStartInfo startInfo = new ProcessStartInfo {
-				WorkingDirectory = Path.GetDirectoryName(_launcherPath),
-				FileName = Path.GetFileName(_launcherPath),
-				UseShellExecute = true
-			};
-
 			try {
-				Process.Start(startInfo);
+				// 工作目录为程序所在目录
+				Process.Start(new ProcessStartInfo {
+					WorkingDirectory = Path.GetDirectoryName(_launcherPath),
+					FileName = Path.GetFileName(_launcherPath),
+					UseShellExecute = true
+				});
 			} catch (Exception ex) {
 				ShowError(ex.Message);
 				return false;
@@ -343,12 +348,12 @@ namespace SnowbreakBox {
 				string response = await _httpClient.GetStringAsync(
 					"https://cbjq-client.xoyocdn.com/games/cbjq/SyncEntrys/cbjq_SyncEntry.json").ConfigureAwait(false);
 				if(!ResolveRemoteJson(response, out Version version)) {
-					throw new Exception();
+					return new Version();
 				}
 
 				return version;
 			} catch (HttpRequestException) {
-				throw new Exception();
+				return new Version();
 			}
 		}
 
@@ -364,27 +369,28 @@ namespace SnowbreakBox {
 				return;
 			}
 
-			_fetchRemoteGameVersionTask = FetchRemoteGameVersion().ContinueWith(task => {
-				GameHasUpdate = task.Result > new Version(2, 0);
-			}, TaskScheduler.FromCurrentSynchronizationContext());
-
+			_fetchRemoteGameVersionTask = FetchRemoteGameVersion();
+			
 			// 解析命令行参数
 			string[] args = Environment.GetCommandLineArgs();
 			if (args.Length == 2 && args[1] == "-q") {
 				// 快速启动
-				_fetchRemoteGameVersionTask.ContinueWith(task => {
-					if (GameHasUpdate) {
-						LaunchGameLauncher();
-					} else {
-						LaunchGame();
-					}
+				WaitForCheckingGameUpdate();
 
-					Close();
-				}, TaskScheduler.FromCurrentSynchronizationContext());
+				if (GameHasUpdate) {
+					LaunchGameLauncher();
+				} else {
+					LaunchGame();
+				}
 
-				Hide();
+				Close();
 				return;
 			}
+
+			// 请求完成后在主线程更新 GameHasUpdate
+			_fetchRemoteGameVersionTask.ContinueWith(_ => {
+				WaitForCheckingGameUpdate();
+			}, TaskScheduler.FromCurrentSynchronizationContext());
 
 			Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
 
@@ -405,28 +411,19 @@ namespace SnowbreakBox {
 			FocusManager.SetFocusedElement(FocusManager.GetFocusScope(this), this);
 		}
 
-		// 防止等待任务时被多次点击
-		bool _launchButtonClicked = false;
 		private void LaunchOrUpdateButton_Click(object sender, RoutedEventArgs e) {
-			if (_launchButtonClicked) {
-				return;
-			}
+			WaitForCheckingGameUpdate();
 
-			_launchButtonClicked = true;
-			_fetchRemoteGameVersionTask.ContinueWith(_ => {
-				_launchButtonClicked = false;
-
-				if (GameHasUpdate) {
-					if (LaunchGameLauncher()) {
-						// 启动游戏启动器后直接退出
-						Close();
-					}
-				} else {
-					if (LaunchGame() && AutoExit) {
-						Close();
-					}
+			if (GameHasUpdate) {
+				if (LaunchGameLauncher()) {
+					// 启动游戏启动器后直接退出
+					Close();
 				}
-			}, TaskScheduler.FromCurrentSynchronizationContext());
+			} else {
+				if (LaunchGame() && AutoExit) {
+					Close();
+				}
+			}
 		}
 	}
 }
