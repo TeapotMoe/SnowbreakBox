@@ -101,21 +101,32 @@ namespace SnowbreakBox {
 			out string gameFolder,
 			out string engineIniPath
 		) {
-			launcherPath = null;
 			gameFolder = null;
 			engineIniPath = null;
 
 			try {
 				launcherPath = Registry.GetValue(launcherRegKey, "DisplayIcon", null) as string;
 				if (!File.Exists(launcherPath)) {
+					launcherPath = null;
 					return false;
 				}
+			} catch (Exception) {
+				launcherPath = null;
+				return false;
+			}
 
+			try {
 				gameFolder = Registry.GetValue(gameRegKey, "InstallPath", null) as string;
 				if (!File.Exists(Path.Combine(gameFolder, "game\\Game\\Binaries\\Win64\\game.exe"))) {
+					gameFolder = null;
 					return false;
 				}
+			} catch (Exception) {
+				gameFolder = null;
+				return false;
+			}
 
+			try {
 				// 检查存档，可能位于游戏文件夹内或 %LocalAppData%，应优先检查游戏文件夹
 				engineIniPath = Path.Combine(gameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
 				if (!File.Exists(engineIniPath)) {
@@ -140,12 +151,14 @@ namespace SnowbreakBox {
 								"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
 							);
 							if (!File.Exists(engineIniPath)) {
+								engineIniPath = null;
 								return false;
 							}
 						}
 					}
 				}
 			} catch (Exception) {
+				engineIniPath = null;
 				return false;
 			}
 
@@ -180,6 +193,16 @@ namespace SnowbreakBox {
 					seasunDetected = false;
 				}
 			} else if (!classicDetected && !seasunDetected) {
+				// 0: 未安装启动器
+				// 1: 未安装游戏
+				// 2: 未找到存档
+				int classicProgress = classicLauncherPath == null ? 0 : (classicGameFolder == null ? 1 : 2);
+				int seasunProgress = seasunLauncherPath == null ? 0 : (seasunGameFolder == null ? 1 : 2);
+				int maxProgress = Math.Max(classicProgress, seasunProgress);
+
+				string[] errorMsgs = { "未找到启动器！", "未找到游戏，请先在启动器中安装游戏！", "未找到游戏存档，请先启动一次游戏！" };
+				ShowError(errorMsgs[maxProgress]);
+
 				return false;
 			}
 
@@ -204,7 +227,6 @@ namespace SnowbreakBox {
 			}
 
 			if (!DetectGame()) {
-				ShowError("未检测到游戏，请确保游戏已经安装！");
 				App.Current.Shutdown();
 				return;
 			}
