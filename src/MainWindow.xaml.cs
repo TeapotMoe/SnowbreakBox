@@ -50,7 +50,7 @@ namespace SnowbreakBox {
 			get {
 				// 游戏启动时会修改 Engine.ini，删除注释并重新排列条目，很难根据 Engine.ini
 				// 判断画质等级。因此我们将画质等级保存为设置。
-				int setting = (int)Settings.Default["GraphicState"];
+				int setting = Settings.Default.GraphicState;
 				if (setting == 0) {
 					return 0;
 				}
@@ -76,11 +76,19 @@ namespace SnowbreakBox {
 						Properties.Resources.ResourceManager.GetString("Profile" + value) : string.Empty;
 					File.WriteAllText(_engineIniPath, iniText);
 
-					Settings.Default["GraphicState"] = value;
+					Settings.Default.GraphicState = value;
 					Settings.Default.Save();
 				} catch (Exception ex) {
 					ShowError(ex.Message);
 				}
+			}
+		}
+
+		public bool AutoExit {
+			get => Settings.Default.AutoExit;
+			set {
+				Settings.Default.AutoExit = value;
+				Settings.Default.Save();
 			}
 		}
 
@@ -275,6 +283,11 @@ namespace SnowbreakBox {
 				Process.Start(startInfo);
 			} catch (Exception ex) {
 				ShowError(ex.Message);
+				return;
+			}
+
+			if (AutoExit) {
+				Close();
 			}
 		}
 	}
