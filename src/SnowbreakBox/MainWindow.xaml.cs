@@ -11,8 +11,13 @@ using System.Windows.Input;
 
 namespace SnowbreakBox {
 	public partial class MainWindow : INotifyPropertyChanged {
+		private static readonly string ENGINE_INI_PATH = "Config\\WindowsNoEditor\\Engine.ini";
+		private static readonly string GAME_INI_PATH = "Config\\WindowsNoEditor\\Game.ini";
+		private static readonly string SPLASH_SCREEN_SECTION = "Distribution";
+		private static readonly string SPLASH_SCREEN_KEY = "SplashScreen";
+
 		private string _launcherPath;
-		private string _engineIniPath;
+		private string _savedFolder;
 		private readonly HttpClient _httpClient = new HttpClient();
 		private Task<Version> _fetchRemoteGameVersionTask;
 
@@ -62,7 +67,8 @@ namespace SnowbreakBox {
 
 				try {
 					// 判断有没有画质补丁相对容易
-					using (StreamReader sr = new StreamReader(_engineIniPath)) {
+					string engineIniPath = Path.Combine(_savedFolder, ENGINE_INI_PATH);
+					using (StreamReader sr = new StreamReader(engineIniPath)) {
 						string content = sr.ReadToEnd();
 						if (content.IndexOf("[SystemSettings]") == -1) {
 							return 0;
@@ -77,14 +83,33 @@ namespace SnowbreakBox {
 			set {
 				try {
 					// 无需保留原始文件的内容，游戏启动时会自动添加默认条目
+					string engineIniPath = Path.Combine(_savedFolder, ENGINE_INI_PATH);
 					string iniText = value > 0 ?
 						Properties.Resources.ResourceManager.GetString("Profile" + value) : string.Empty;
-					File.WriteAllText(_engineIniPath, iniText);
+					File.WriteAllText(engineIniPath, iniText);
 
 					Settings.Default.GraphicState = value;
 					Settings.Default.Save();
 				} catch (Exception ex) {
 					ShowError(ex.Message);
+				}
+			}
+		}
+
+		public bool IsSplashScreenDisabled {
+			get {
+				string gameIniPath = Path.Combine(_savedFolder, GAME_INI_PATH);
+				IniFile iniFile = new IniFile(gameIniPath);
+				string value = iniFile.Read(SPLASH_SCREEN_KEY, SPLASH_SCREEN_SECTION);
+				return value.ToLower() == "false";
+			}
+			set {
+				string gameIniPath = Path.Combine(_savedFolder, GAME_INI_PATH);
+				IniFile iniFile = new IniFile(gameIniPath);
+				if (value) {
+					iniFile.Write(SPLASH_SCREEN_KEY, "False", SPLASH_SCREEN_SECTION);
+				} else {
+					iniFile.DeleteKey(SPLASH_SCREEN_KEY, SPLASH_SCREEN_SECTION);
 				}
 			}
 		}
@@ -114,7 +139,7 @@ namespace SnowbreakBox {
 				return;
 			}
 
-			GameHasUpdate = _fetchRemoteGameVersionTask.Result > new Version(2, 0);
+			GameHasUpdate = _fetchRemoteGameVersionTask.Result > new Version(3, 0);
 			_fetchRemoteGameVersionTask = null;
 		}
 
@@ -141,11 +166,11 @@ namespace SnowbreakBox {
 			bool isSeasun,
 			out string launcherPath,
 			out string gameFolder,
-			out string engineIniPath,
+			out string savedFolder,
 			out bool isSeasunOld
 		) {
 			gameFolder = null;
-			engineIniPath = null;
+			savedFolder = null;
 			isSeasunOld = false;
 
 			try {
@@ -165,6 +190,9 @@ namespace SnowbreakBox {
 					gameFolder = null;
 					return false;
 				}
+
+				// 西山居启动器保存的路径包含正斜杠
+				gameFolder = gameFolder.Replace('/', '\\');
 			} catch (Exception) {
 				gameFolder = null;
 				return false;
@@ -172,15 +200,17 @@ namespace SnowbreakBox {
 
 			try {
 				// 检查存档，可能位于游戏文件夹内或 %LocalAppData%，应优先检查游戏文件夹
-				engineIniPath = Path.Combine(gameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
+				string engineIniPath = Path.Combine(gameFolder, "game\\Saved", ENGINE_INI_PATH);
 				if (File.Exists(engineIniPath)) {
+					savedFolder = Path.Combine(gameFolder, "game\\Saved");
 					return true;
 				}
 
 				if (isSeasun) {
 					// 旧版西山居启动器没有 game 中间目录
-					engineIniPath = Path.Combine(gameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
+					engineIniPath = Path.Combine(gameFolder, "Saved", ENGINE_INI_PATH);
 					if (File.Exists(engineIniPath)) {
+						savedFolder = Path.Combine(gameFolder, "Saved");
 						isSeasunOld = true;
 						return true;
 					}
@@ -188,28 +218,25 @@ namespace SnowbreakBox {
 					// 西山居启动器 v1.7.7 存在 bug，游戏路径中如果存在空格会被截断，比如如果游戏安装在
 					// C:\Program Files\Snow，存档会被保存在 C:\Program\Saved。
 					int spaceIdx = gameFolder.IndexOf(' ');
-					engineIniPath = Path.Combine(
-						spaceIdx == -1 ? gameFolder : gameFolder.Substring(0, spaceIdx),
-						"Saved",
-						"Config\\WindowsNoEditor\\Engine.ini"
-					);
+					string truncatedPath = spaceIdx == -1 ? gameFolder : gameFolder.Substring(0, spaceIdx);
+					engineIniPath = Path.Combine(truncatedPath, "Saved", ENGINE_INI_PATH);
 					if (File.Exists(engineIniPath)) {
+						savedFolder = Path.Combine(truncatedPath, "Saved");
 						return true;
 					}
 				}
 
 				// 检查 %LocalAppData%，如果游戏路径中如果存在空格，经典启动器会把存档保存在这里
-				engineIniPath = Path.Combine(
-					Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-					"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
-				);
+				string localAppDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+				engineIniPath = Path.Combine(localAppDataFolder, "Game\\Saved", ENGINE_INI_PATH);
 				if (File.Exists(engineIniPath)) {
+					savedFolder = Path.Combine(localAppDataFolder, "Game\\Saved");
 					return true;
 				}
 			} catch (Exception) {
 			}
 
-			engineIniPath = null;
+			savedFolder = null;
 			return false;
 		}
 
@@ -221,7 +248,7 @@ namespace SnowbreakBox {
 				false,
 				out string classicLauncherPath,
 				out string classicGameFolder,
-				out string classicEngineIniPath,
+				out string classicSavedFolder,
 				out _
 			);
 			// 检测西山居启动器
@@ -231,7 +258,7 @@ namespace SnowbreakBox {
 				true,
 				out string seasunLauncherPath,
 				out string seasunGameFolder,
-				out string seasunEngineIniPath,
+				out string seasunSavedFolder,
 				out bool isSeasunOld
 			);
 
@@ -260,12 +287,12 @@ namespace SnowbreakBox {
 				_launcherType = LauncherType.Classic;
 				_launcherPath = classicLauncherPath;
 				GameFolder = classicGameFolder;
-				_engineIniPath = classicEngineIniPath;
+				_savedFolder = classicSavedFolder;
 			} else {
 				_launcherType= isSeasunOld ? LauncherType.SeasunOld : LauncherType.Seasun;
 				_launcherPath = seasunLauncherPath;
 				GameFolder = seasunGameFolder;
-				_engineIniPath = seasunEngineIniPath;
+				_savedFolder = seasunSavedFolder;
 			}
 
 			return true;

@@ -111,10 +111,10 @@
 							               FontSize="24"
 							               Symbol="FastForward24" />
 							<ui:TextBlock VerticalAlignment="Center"
-							              Text="启动时跳过开屏 Logo" />
+							              Text="跳过启动画面" />
 						</StackPanel>
 						<ui:ToggleSwitch HorizontalAlignment="Right"
-						                 IsChecked="{Binding AutoExit, Mode=TwoWay}" />
+						                 IsChecked="{Binding IsSplashScreenDisabled, Mode=TwoWay}" />
 					</Grid>
 				</ui:Card>
 				<ui:TextBlock Margin="0,20,0,8"
