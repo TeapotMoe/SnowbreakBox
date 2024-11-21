@@ -157,30 +157,25 @@
 				                    Cursor="Hand"
 				                    NavigateUri="https://tieba.baidu.com/f?kw=尘白禁区" />
 			</StackPanel>
-			<ui:Button Grid.Column="0"
-			           Grid.ColumnSpan="2"
-			           Margin="0,0,20,20"
-			           Padding="24,10,28,10"
-			           HorizontalAlignment="Right"
-			           VerticalAlignment="Bottom"
-			           Appearance="Primary"
-			           Click="LaunchOrUpdateButton_Click"
-			           Content="启动游戏"
-			           FontSize="20"
-			           Icon="{ui:SymbolIcon 'Play32'}"
-			           Visibility="{Binding LaunchButtonVisibility, Mode=OneWay}" />
-			<ui:Button Grid.Column="0"
-			           Grid.ColumnSpan="2"
-			           Margin="0,0,20,20"
-			           Padding="24,10,28,10"
-			           HorizontalAlignment="Right"
-			           VerticalAlignment="Bottom"
-			           Appearance="Primary"
-			           Click="LaunchOrUpdateButton_Click"
-			           Content="更新游戏"
-			           FontSize="20"
-			           Icon="{ui:SymbolIcon 'ArrowCircleDown32'}"
-			           Visibility="{Binding UpdateButtonVisibility, Mode=OneWay}" />
+			<Grid Grid.Column="1"
+			      Margin="-28,0,0,48"
+			      HorizontalAlignment="Center"
+			      VerticalAlignment="Bottom">
+				<ui:Button Padding="24,10,28,10"
+				           Appearance="Primary"
+				           Click="LaunchOrUpdateButton_Click"
+				           Content="启动游戏"
+				           FontSize="20"
+				           Icon="{ui:SymbolIcon 'Play32'}"
+				           Visibility="{Binding LaunchButtonVisibility, Mode=OneWay}" />
+				<ui:Button Padding="24,10,28,10"
+				           Appearance="Primary"
+				           Click="LaunchOrUpdateButton_Click"
+				           Content="更新游戏"
+				           FontSize="20"
+				           Icon="{ui:SymbolIcon 'ArrowCircleDown32'}"
+				           Visibility="{Binding UpdateButtonVisibility, Mode=OneWay}" />
+			</Grid>
 		</Grid>
 	</StackPanel>
 </ui:FluentWindow>

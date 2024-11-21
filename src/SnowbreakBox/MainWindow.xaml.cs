@@ -13,9 +13,7 @@ namespace SnowbreakBox {
 	public partial class MainWindow : INotifyPropertyChanged {
 		private static readonly string ENGINE_INI_PATH = "Config\\WindowsNoEditor\\Engine.ini";
 		private static readonly string GAME_INI_PATH = "Config\\WindowsNoEditor\\Game.ini";
-		private static readonly string SPLASH_SCREEN_SECTION = "Distribution";
-		private static readonly string SPLASH_SCREEN_KEY = "SplashScreen";
-
+		
 		private string _launcherPath;
 		private string _savedFolder;
 		private Version _gameVersion;
@@ -97,6 +95,8 @@ namespace SnowbreakBox {
 			}
 		}
 
+		private static readonly string SPLASH_SCREEN_SECTION = "Distribution";
+		private static readonly string SPLASH_SCREEN_KEY = "SplashScreen";
 		public bool IsSplashScreenDisabled {
 			get {
 				string gameIniPath = Path.Combine(_savedFolder, GAME_INI_PATH);
