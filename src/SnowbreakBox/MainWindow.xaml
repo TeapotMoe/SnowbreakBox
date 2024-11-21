@@ -102,6 +102,21 @@
 						           TextWrapping="Wrap" />
 					</StackPanel>
 				</ui:Card>
+				<ui:Card Margin="0,2,0,0">
+					<Grid MinHeight="30">
+						<StackPanel VerticalAlignment="Center"
+						            Orientation="Horizontal">
+							<ui:SymbolIcon Margin="0,0,8,0"
+							               VerticalAlignment="Center"
+							               FontSize="24"
+							               Symbol="FastForward24" />
+							<ui:TextBlock VerticalAlignment="Center"
+							              Text="启动时跳过开屏 Logo" />
+						</StackPanel>
+						<ui:ToggleSwitch HorizontalAlignment="Right"
+						                 IsChecked="{Binding AutoExit, Mode=TwoWay}" />
+					</Grid>
+				</ui:Card>
 				<ui:TextBlock Margin="0,20,0,8"
 				              FontTypography="BodyStrong"
 				              Text="工具箱配置" />
@@ -149,10 +164,23 @@
 			           HorizontalAlignment="Right"
 			           VerticalAlignment="Bottom"
 			           Appearance="Primary"
-			           Click="LaunchButton_Click"
+			           Click="LaunchOrUpdateButton_Click"
 			           Content="启动游戏"
 			           FontSize="20"
-			           Icon="{ui:SymbolIcon 'Play32'}" />
+			           Icon="{ui:SymbolIcon 'Play32'}"
+			           Visibility="{Binding LaunchButtonVisibility, Mode=OneWay}" />
+			<ui:Button Grid.Column="0"
+			           Grid.ColumnSpan="2"
+			           Margin="0,0,20,20"
+			           Padding="24,10,28,10"
+			           HorizontalAlignment="Right"
+			           VerticalAlignment="Bottom"
+			           Appearance="Primary"
+			           Click="LaunchOrUpdateButton_Click"
+			           Content="更新游戏"
+			           FontSize="20"
+			           Icon="{ui:SymbolIcon 'ArrowCircleDown32'}"
+			           Visibility="{Binding UpdateButtonVisibility, Mode=OneWay}" />
 		</Grid>
 	</StackPanel>
 </ui:FluentWindow>
