@@ -227,38 +227,7 @@ namespace SnowbreakBox {
 			return true;
 		}
 
-		public MainWindow() {
-			if (IsGameRunning()) {
-				ShowError("游戏正在运行！");
-				App.Current.Shutdown();
-				return;
-			}
-
-			if (!DetectGame()) {
-				App.Current.Shutdown();
-				return;
-			}
-
-			Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
-
-			DataContext = this;
-
-			InitializeComponent();
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		protected virtual void OnPropertyChanged(string propertyName) {
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
-
-		private void FluentWindow_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-			// 取消控件的焦点
-			// https://stackoverflow.com/a/2914599
-			FocusManager.SetFocusedElement(FocusManager.GetFocusScope(this), this);
-		}
-
-		private void LaunchButton_Click(object sender, RoutedEventArgs e) {
+		private bool LaunchGame() {
 			string arguments = "-FeatureLevelES31 -ChannelID=jinshan ";
 			// 两个启动器传递路径的做法都是错的，这导致了存档路径的混乱。为了使用现有存档，我们只能将错就错。
 			if (_launcherType == LauncherType.Classic) {
@@ -283,6 +252,54 @@ namespace SnowbreakBox {
 				Process.Start(startInfo);
 			} catch (Exception ex) {
 				ShowError(ex.Message);
+				return false;
+			}
+
+			return true;
+		}
+
+		public MainWindow() {
+			if (IsGameRunning()) {
+				ShowError("游戏正在运行！");
+				App.Current.Shutdown();
+				return;
+			}
+
+			if (!DetectGame()) {
+				App.Current.Shutdown();
+				return;
+			}
+
+			// 解析命令行参数
+			string[] args = Environment.GetCommandLineArgs();
+			if (args.Length == 2 && args[1] == "-q") {
+				// 快速启动
+				LaunchGame();
+				App.Current.Shutdown();
+				return;
+			}
+
+			Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
+
+			DataContext = this;
+
+			InitializeComponent();
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName) {
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		private void FluentWindow_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+			// 取消控件的焦点
+			// https://stackoverflow.com/a/2914599
+			FocusManager.SetFocusedElement(FocusManager.GetFocusScope(this), this);
+		}
+
+		private void LaunchButton_Click(object sender, RoutedEventArgs e) {
+			if (!LaunchGame()) {
 				return;
 			}
 

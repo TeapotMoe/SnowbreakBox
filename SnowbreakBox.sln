@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowbreakBox", "src\SnowbreakBox.csproj", "{2B975BA4-9D08-4D28-9E3C-2385DB98F750}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowbreakBox", "src\SnowbreakBox\SnowbreakBox.csproj", "{2B975BA4-9D08-4D28-9E3C-2385DB98F750}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickLauncher", "src\QuickLauncher\QuickLauncher.csproj", "{64EB5BEC-F455-47BC-A147-2E766308D045}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2B975BA4-9D08-4D28-9E3C-2385DB98F750} = {2B975BA4-9D08-4D28-9E3C-2385DB98F750}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{2B975BA4-9D08-4D28-9E3C-2385DB98F750}.Debug|x64.Build.0 = Debug|x64
 		{2B975BA4-9D08-4D28-9E3C-2385DB98F750}.Release|x64.ActiveCfg = Release|x64
 		{2B975BA4-9D08-4D28-9E3C-2385DB98F750}.Release|x64.Build.0 = Release|x64
+		{64EB5BEC-F455-47BC-A147-2E766308D045}.Debug|x64.ActiveCfg = Debug|x64
+		{64EB5BEC-F455-47BC-A147-2E766308D045}.Debug|x64.Build.0 = Debug|x64
+		{64EB5BEC-F455-47BC-A147-2E766308D045}.Release|x64.ActiveCfg = Release|x64
+		{64EB5BEC-F455-47BC-A147-2E766308D045}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -114,7 +114,7 @@
 							               FontSize="24"
 							               Symbol="AnimalCat24" />
 							<ui:TextBlock VerticalAlignment="Center"
-							              Text="启动游戏后自动退出" />
+							              Text="启动游戏后退出" />
 						</StackPanel>
 						<ui:ToggleSwitch HorizontalAlignment="Right"
 						                 IsChecked="{Binding AutoExit, Mode=TwoWay}" />
