@@ -18,7 +18,9 @@ namespace SnowbreakBox {
 
 		private enum LauncherType {
 			Classic,
-			Seasun
+			// 西山居启动器在 v1.7.7 更改了游戏启动参数
+			Seasun,
+			SeasunOld
 		}
 		LauncherType _launcherType;
 
@@ -136,13 +138,15 @@ namespace SnowbreakBox {
 		private bool FindGame(
 			string launcherRegKey,
 			string gameRegKey,
-			bool checkTruncatedPath,
+			bool isSeasun,
 			out string launcherPath,
 			out string gameFolder,
-			out string engineIniPath
+			out string engineIniPath,
+			out bool isSeasunOld
 		) {
 			gameFolder = null;
 			engineIniPath = null;
+			isSeasunOld = false;
 
 			try {
 				launcherPath = Registry.GetValue(launcherRegKey, "DisplayIcon", null) as string;
@@ -169,40 +173,44 @@ namespace SnowbreakBox {
 			try {
 				// 检查存档，可能位于游戏文件夹内或 %LocalAppData%，应优先检查游戏文件夹
 				engineIniPath = Path.Combine(gameFolder, "game\\Saved\\Config\\WindowsNoEditor\\Engine.ini");
-				if (!File.Exists(engineIniPath)) {
-					// Saved 目录可能不在 game 目录里，旧版西山居启动器使用这个路径
-					engineIniPath = Path.Combine(gameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
-					if (!File.Exists(engineIniPath)) {
-						if (checkTruncatedPath) {
-							// 西山居启动器 v1.7.7 存在 bug，游戏路径中如果存在空格会被截断，比如如果游戏安装在
-							// C:\Program Files\Snow，存档会被保存在 C:\Program\Saved。
-							int spaceIdx = gameFolder.IndexOf(' ');
-							engineIniPath = Path.Combine(
-								spaceIdx == -1 ? gameFolder : gameFolder.Substring(0, spaceIdx),
-								"Saved",
-								"Config\\WindowsNoEditor\\Engine.ini"
-							);
-						}
+				if (File.Exists(engineIniPath)) {
+					return true;
+				}
 
-						if (!(checkTruncatedPath && File.Exists(engineIniPath))) {
-							// 检查 %LocalAppData%，如果游戏路径中如果存在空格，经典启动器会把存档保存在这里
-							engineIniPath = Path.Combine(
-								Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-								"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
-							);
-							if (!File.Exists(engineIniPath)) {
-								engineIniPath = null;
-								return false;
-							}
-						}
+				if (isSeasun) {
+					// 旧版西山居启动器没有 game 中间目录
+					engineIniPath = Path.Combine(gameFolder, "Saved\\Config\\WindowsNoEditor\\Engine.ini");
+					if (File.Exists(engineIniPath)) {
+						isSeasunOld = true;
+						return true;
+					}
+
+					// 西山居启动器 v1.7.7 存在 bug，游戏路径中如果存在空格会被截断，比如如果游戏安装在
+					// C:\Program Files\Snow，存档会被保存在 C:\Program\Saved。
+					int spaceIdx = gameFolder.IndexOf(' ');
+					engineIniPath = Path.Combine(
+						spaceIdx == -1 ? gameFolder : gameFolder.Substring(0, spaceIdx),
+						"Saved",
+						"Config\\WindowsNoEditor\\Engine.ini"
+					);
+					if (File.Exists(engineIniPath)) {
+						return true;
 					}
 				}
+
+				// 检查 %LocalAppData%，如果游戏路径中如果存在空格，经典启动器会把存档保存在这里
+				engineIniPath = Path.Combine(
+					Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+					"Game\\Saved\\Config\\WindowsNoEditor\\Engine.ini"
+				);
+				if (File.Exists(engineIniPath)) {
+					return true;
+				}
 			} catch (Exception) {
-				engineIniPath = null;
-				return false;
 			}
 
-			return true;
+			engineIniPath = null;
+			return false;
 		}
 
 		private bool DetectGame() {
@@ -213,7 +221,8 @@ namespace SnowbreakBox {
 				false,
 				out string classicLauncherPath,
 				out string classicGameFolder,
-				out string classicEngineIniPath
+				out string classicEngineIniPath,
+				out _
 			);
 			// 检测西山居启动器
 			bool seasunDetected = FindGame(
@@ -222,7 +231,8 @@ namespace SnowbreakBox {
 				true,
 				out string seasunLauncherPath,
 				out string seasunGameFolder,
-				out string seasunEngineIniPath
+				out string seasunEngineIniPath,
+				out bool isSeasunOld
 			);
 
 			if (classicDetected && seasunDetected) {
@@ -252,7 +262,7 @@ namespace SnowbreakBox {
 				GameFolder = classicGameFolder;
 				_engineIniPath = classicEngineIniPath;
 			} else {
-				_launcherType= LauncherType.Seasun;
+				_launcherType= isSeasunOld ? LauncherType.SeasunOld : LauncherType.Seasun;
 				_launcherPath = seasunLauncherPath;
 				GameFolder = seasunGameFolder;
 				_engineIniPath = seasunEngineIniPath;
@@ -269,10 +279,15 @@ namespace SnowbreakBox {
 				arguments += "\"-userdir=\\\"";
 				arguments += Path.Combine(GameFolder, "game");
 				arguments += "\\\"\"";
-			} else {
+			} else if (_launcherType == LauncherType.Seasun) {
 				// 西山居启动器不加双引号
 				arguments += "-userdir=";
 				arguments += Path.Combine(GameFolder, "game");
+			} else {
+				// 旧版西山居启动器在路径两侧加双引号，但没有 game 中间目录
+				arguments += "-userdir=\"";
+				arguments += GameFolder;
+				arguments += '\"';
 			}
 
 			try {
