@@ -18,6 +18,7 @@ namespace SnowbreakBox {
 
 		private string _launcherPath;
 		private string _savedFolder;
+		private Version _gameVersion;
 		private readonly HttpClient _httpClient = new HttpClient();
 		private Task<Version> _fetchRemoteGameVersionTask;
 
@@ -135,12 +136,17 @@ namespace SnowbreakBox {
 		}
 
 		private void WaitForCheckingGameUpdate() {
-			if(_fetchRemoteGameVersionTask == null) {
+			if (_fetchRemoteGameVersionTask == null || _gameVersion == null) {
 				return;
 			}
 
-			GameHasUpdate = _fetchRemoteGameVersionTask.Result > new Version(3, 0);
+			Version remoteVersion = _fetchRemoteGameVersionTask.Result;
 			_fetchRemoteGameVersionTask = null;
+			if (remoteVersion == null) {
+				return;
+			}
+
+			GameHasUpdate = remoteVersion > _gameVersion;
 		}
 
 		public Visibility LaunchButtonVisibility {
@@ -240,6 +246,34 @@ namespace SnowbreakBox {
 			return false;
 		}
 
+		// 解析 json，不值得引入新的库
+		private string ReadStringFromJson(string json, string key) {
+			int idx = json.IndexOf('\"' + key + '\"');
+			if (idx < 0) {
+				return null;
+			}
+
+			json = json.Substring(idx + key.Length + 2);
+			json.TrimStart();
+			if (json.Length == 0 || json[0] != ':') {
+				return null;
+			}
+
+			json = json.Substring(1);
+			json.TrimStart();
+			if (json.Length == 0 || json[0] != '\"') {
+				return null;
+			}
+
+			json = json.Substring(1);
+			int strEnd = json.IndexOf('\"');
+			if (strEnd < 0) {
+				return null;
+			}
+
+			return json.Substring(0, strEnd);
+		}
+
 		private bool DetectGame() {
 			// 检测经典启动器
 			bool classicDetected = FindGame(
@@ -288,11 +322,31 @@ namespace SnowbreakBox {
 				_launcherPath = classicLauncherPath;
 				GameFolder = classicGameFolder;
 				_savedFolder = classicSavedFolder;
+
+				// 读取游戏版本
+				try {
+					// 读取 manifest.json 而不是 version.cfg，启动器使用前者对比本地与云端的文件变更
+					string json = File.ReadAllText(Path.Combine(GameFolder, "manifest.json"));
+					string versionStr = ReadStringFromJson(json, "version");
+					if (versionStr == null || !Version.TryParse(versionStr, out _gameVersion)) {
+						_gameVersion = null;
+					}
+				} catch (Exception e) {
+					ShowError("读取游戏版本失败：" + e.Message);
+				}
 			} else {
 				_launcherType= isSeasunOld ? LauncherType.SeasunOld : LauncherType.Seasun;
 				_launcherPath = seasunLauncherPath;
 				GameFolder = seasunGameFolder;
 				_savedFolder = seasunSavedFolder;
+
+				// 读取游戏版本
+				string versionManagerIniPath = Path.Combine(GameFolder, "Temp\\VersionManager.ini");
+				IniFile iniFile = new IniFile(versionManagerIniPath);
+				string versionStr = iniFile.Read("GameVersion", "cbjq");
+				if (versionStr == null || !Version.TryParse(versionStr, out _gameVersion)) {
+					_gameVersion = null;
+				}
 			}
 
 			return true;
@@ -349,54 +403,18 @@ namespace SnowbreakBox {
 			return true;
 		}
 
-		// 解析 json，不值得引入新的库
-		private bool ResolveRemoteJson(string json, out Version version) {
-			version = null;
-
-			int idx = json.IndexOf("\"GameVersion\"");
-			if (idx < 0) {
-				return false;
-			}
-
-			json = json.Substring(idx + 13);
-			json.TrimStart();
-			if (json.Length == 0 || json[0] != ':') {
-				return false;
-			}
-
-			json = json.Substring(1);
-			json.TrimStart();
-			if (json.Length == 0 || json[0] != '\"') {
-				return false;
-			}
-
-			json = json.Substring(1);
-			int strEnd = json.IndexOf('\"');
-			if (strEnd < 0) {
-				return false;
-			}
-
-			try {
-				version = new Version(json.Substring(0, strEnd));
-			} catch (Exception) {
-				return false;
-			}
-			
-			return true;
-		}
-
 		private async Task<Version> FetchRemoteGameVersion() {
 			try {
 				string response = await _httpClient.GetStringAsync(
 					"https://cbjq-client.xoyocdn.com/games/cbjq/SyncEntrys/cbjq_SyncEntry.json").ConfigureAwait(false);
-				if(!ResolveRemoteJson(response, out Version version)) {
-					return new Version();
+				string versionStr = ReadStringFromJson(response, "GameVersion");
+				if (versionStr != null && Version.TryParse(versionStr, out var version)) {
+					return version;
 				}
-
-				return version;
 			} catch (HttpRequestException) {
-				return new Version();
 			}
+
+			return null;
 		}
 
 		public MainWindow() {
