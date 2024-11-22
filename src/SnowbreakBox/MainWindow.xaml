@@ -6,137 +6,204 @@
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                  Title="尘白禁区工具箱"
-                 Width="700"
+                 Width="720"
+                 Height="580"
+                 d:Height="NaN"
+                 d:SizeToContent="Height"
                  ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
                  ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                  ExtendsContentIntoTitleBar="True"
                  Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                  MouseDown="FluentWindow_MouseDown"
                  ResizeMode="NoResize"
-                 SizeToContent="Height"
                  WindowBackdropType="Mica"
                  WindowStartupLocation="CenterScreen"
                  mc:Ignorable="d">
-	<StackPanel Orientation="Vertical">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
 		<ui:TitleBar Title="尘白禁区工具箱"
+		             Grid.ColumnSpan="2"
+		             VerticalAlignment="Center"
 		             CanMaximize="False"
 		             ShowMaximize="False"
 		             ShowMinimize="False" />
-		<Grid>
+		<Grid Grid.Row="1"
+		      Grid.ColumnSpan="2">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition />
-				<ColumnDefinition Width="180" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
-			<StackPanel Grid.Column="0"
-			            Margin="28,10,28,24">
-				<ui:TextBlock Margin="0,0,0,8"
-				              FontTypography="BodyStrong"
-				              Text="游戏路径" />
-				<ui:TextBox x:Name="gameFolderTextBox"
-				            Grid.Column="0"
-				            IsReadOnly="True"
-				            IsReadOnlyCaretVisible="True"
-				            Text="{Binding GameFolder, Mode=OneTime}" />
+			<ScrollViewer>
+				<StackPanel Grid.Column="0"
+				            Margin="28,10,28,24">
+					<ui:TextBlock Margin="0,0,0,8"
+					              FontTypography="BodyStrong"
+					              Text="游戏路径" />
+					<ui:TextBox x:Name="gameFolderTextBox"
+					            Grid.Column="0"
+					            IsReadOnly="True"
+					            IsReadOnlyCaretVisible="True"
+					            Text="{Binding GameFolder, Mode=OneTime}" />
 
-				<ui:TextBlock Margin="0,20,0,8"
-				              FontTypography="BodyStrong"
-				              Text="游戏配置" />
-				<ui:Card>
-					<Grid MinHeight="30">
-						<StackPanel VerticalAlignment="Center"
-						            Orientation="Horizontal">
-							<ui:SymbolIcon Margin="0,0,10,0"
-							               VerticalAlignment="Center"
-							               FontSize="22"
-							               Symbol="Heart24" />
-							<StackPanel>
-								<ui:TextBlock Text="神秘开关" />
-								<ui:TextBlock FontSize="12"
-								              Foreground="Gray"
-								              Text="自动修改 localization.txt" />
+					<ui:TextBlock Margin="0,20,0,8"
+					              FontTypography="BodyStrong"
+					              Text="游戏配置" />
+					<ui:Card>
+						<Grid MinHeight="30">
+							<StackPanel VerticalAlignment="Center"
+							            Orientation="Horizontal">
+								<ui:SymbolIcon Margin="0,0,10,0"
+								               VerticalAlignment="Center"
+								               FontSize="22"
+								               Symbol="Heart24" />
+								<StackPanel>
+									<ui:TextBlock Text="神秘开关" />
+									<ui:TextBlock FontSize="12"
+									              Foreground="Gray"
+									              Text="自动修改 localization.txt" />
+								</StackPanel>
 							</StackPanel>
-						</StackPanel>
-						<ui:ToggleSwitch HorizontalAlignment="Right"
-						                 IsChecked="{Binding IsCensorDisabled, Mode=TwoWay}" />
-					</Grid>
-				</ui:Card>
-				<ui:Card Margin="0,2,0,0">
-					<Grid MinHeight="30">
-						<StackPanel VerticalAlignment="Center"
-						            Orientation="Horizontal">
-							<ui:SymbolIcon Margin="0,0,8,0"
-							               VerticalAlignment="Center"
-							               FontSize="24"
-							               Symbol="Sparkle28" />
-							<StackPanel VerticalAlignment="Center">
-								<ui:TextBlock Text="画质补丁" />
-								<ui:TextBlock FontSize="12"
-								              Foreground="Gray"
-								              Text="自动修改 Engine.ini" />
+							<ui:ToggleSwitch HorizontalAlignment="Right"
+							                 IsChecked="{Binding IsCensorDisabled, Mode=TwoWay}" />
+						</Grid>
+					</ui:Card>
+					<ui:Card Margin="0,2,0,0">
+						<Grid MinHeight="30">
+							<StackPanel VerticalAlignment="Center"
+							            Orientation="Horizontal">
+								<ui:SymbolIcon Margin="0,0,8,0"
+								               VerticalAlignment="Center"
+								               FontSize="24"
+								               Symbol="Sparkle28" />
+								<StackPanel VerticalAlignment="Center">
+									<ui:TextBlock Text="画质补丁" />
+									<ui:TextBlock FontSize="12"
+									              Foreground="Gray"
+									              Text="自动修改 Engine.ini" />
+								</StackPanel>
 							</StackPanel>
+							<ComboBox HorizontalAlignment="Right"
+							          SelectedIndex="{Binding GraphicState, Mode=TwoWay}">
+								<ComboBoxItem Content="无" />
+								<ComboBoxItem Content="优化" />
+								<ComboBoxItem Content="细节+优化" />
+								<ComboBoxItem Content="中" />
+								<ComboBoxItem Content="高" />
+								<ComboBoxItem Content="极高" />
+							</ComboBox>
+						</Grid>
+					</ui:Card>
+					<ui:Card Margin="0,2,0,0">
+						<StackPanel Orientation="Horizontal">
+							<ui:SymbolIcon VerticalAlignment="Top"
+							               Filled="True"
+							               FontSize="16"
+							               Symbol="Info24">
+								<ui:SymbolIcon.Foreground>
+									<SolidColorBrush Color="{DynamicResource SystemAccentColorSecondary}" />
+								</ui:SymbolIcon.Foreground>
+							</ui:SymbolIcon>
+							<TextBlock Width="433"
+							           Margin="18,0,0,0"
+							           Text="这个选项直接修改虚幻引擎的参数，和游戏内的设置互不影响。&#13;N 卡用户建议启用低延时模式；A 卡用户建议启用 Radeon™ Anti-Lag。&#13;建议在游戏中打开垂直同步，帧率限制设置为 300。&#13;游戏更新后可能需要重新设置。"
+							           TextWrapping="Wrap" />
 						</StackPanel>
-						<ComboBox HorizontalAlignment="Right"
-						          SelectedIndex="{Binding GraphicState, Mode=TwoWay}">
-							<ComboBoxItem Content="关闭" />
-							<ComboBoxItem Content="优化" />
-							<ComboBoxItem Content="细节+优化" />
-							<ComboBoxItem Content="中" />
-							<ComboBoxItem Content="高" />
-							<ComboBoxItem Content="极高" />
-						</ComboBox>
-					</Grid>
-				</ui:Card>
-				<ui:Card Margin="0,2,0,0">
-					<StackPanel Orientation="Horizontal">
-						<ui:SymbolIcon VerticalAlignment="Top"
-						               Filled="True"
-						               FontSize="16"
-						               Symbol="Info24">
-							<ui:SymbolIcon.Foreground>
-								<SolidColorBrush Color="{DynamicResource SystemAccentColorSecondary}" />
-							</ui:SymbolIcon.Foreground>
-						</ui:SymbolIcon>
-						<TextBlock Width="396"
-						           Margin="18,0,0,0"
-						           Text="这个选项直接修改虚幻引擎的参数，和游戏内的设置互不影响。&#13;N 卡用户建议启用低延时模式；A 卡用户建议启用 Radeon™ Anti-Lag。&#13;建议在游戏中打开垂直同步，帧率限制设置为 300。&#13;游戏更新后可能需要重新设置。"
-						           TextWrapping="Wrap" />
-					</StackPanel>
-				</ui:Card>
-				<ui:Card Margin="0,2,0,0">
-					<Grid MinHeight="30">
-						<StackPanel VerticalAlignment="Center"
-						            Orientation="Horizontal">
-							<ui:SymbolIcon Margin="0,0,8,0"
-							               VerticalAlignment="Center"
-							               FontSize="24"
-							               Symbol="FastForward24" />
-							<ui:TextBlock VerticalAlignment="Center"
-							              Text="跳过启动画面" />
+					</ui:Card>
+					<ui:Card Margin="0,2,0,0">
+						<Grid MinHeight="30">
+							<StackPanel VerticalAlignment="Center"
+							            Orientation="Horizontal">
+								<ui:SymbolIcon Margin="0,0,8,0"
+								               VerticalAlignment="Center"
+								               FontSize="24"
+								               Symbol="FastForward24" />
+								<ui:TextBlock VerticalAlignment="Center"
+								              Text="跳过启动画面" />
+							</StackPanel>
+							<ui:ToggleSwitch HorizontalAlignment="Right"
+							                 IsChecked="{Binding IsSplashScreenDisabled, Mode=TwoWay}" />
+						</Grid>
+					</ui:Card>
+					<ui:TextBlock Margin="0,20,0,8"
+					              FontTypography="BodyStrong"
+					              Text="工具箱配置" />
+					<ui:Card>
+						<Grid MinHeight="30">
+							<StackPanel VerticalAlignment="Center"
+							            Orientation="Horizontal">
+								<ui:SymbolIcon Margin="0,0,8,0"
+								               VerticalAlignment="Center"
+								               FontSize="24"
+								               Symbol="AnimalCat24" />
+								<ui:TextBlock VerticalAlignment="Center"
+								              Text="启动游戏后退出" />
+							</StackPanel>
+							<ui:ToggleSwitch HorizontalAlignment="Right"
+							                 IsChecked="{Binding AutoExit, Mode=TwoWay}" />
+						</Grid>
+					</ui:Card>
+					<ui:TextBlock Margin="0,20,0,8"
+					              FontTypography="BodyStrong"
+					              Text="高级" />
+					<ui:Card>
+						<Grid MinHeight="30">
+							<StackPanel VerticalAlignment="Center"
+							            Orientation="Horizontal">
+								<ui:SymbolIcon Margin="0,0,8,0"
+								               VerticalAlignment="Center"
+								               FontSize="24"
+								               Symbol="FolderArrowRight24" />
+								<StackPanel>
+									<ui:TextBlock Text="修正存档位置" />
+									<ui:TextBlock FontSize="12"
+									              Foreground="Gray"
+									              Text="如果官方启动器工作正常，不建议使用此功能" />
+								</StackPanel>
+							</StackPanel>
+							<ui:Button HorizontalAlignment="Right"
+							           VerticalAlignment="Center"
+							           Click="FixSavedPathButton_Click"
+							           Content="执行"
+							           IsEnabled="{Binding IsFixSavedPathButtonEnabled, Mode=OneWay}" />
+						</Grid>
+					</ui:Card>
+					<ui:Card Margin="0,2,0,0"
+					         Background="{DynamicResource InfoBarWarningSeverityBackgroundBrush}"
+					         Visibility="{Binding FixSavedPathWarningInfoBarVisibility, Mode=OneWay}">
+						<StackPanel Orientation="Horizontal">
+							<ui:SymbolIcon VerticalAlignment="Top"
+							               Filled="True"
+							               FontSize="16"
+							               Foreground="{DynamicResource InfoBarWarningSeverityIconBackground}"
+							               Symbol="ErrorCircle24" />
+							<TextBlock Width="430"
+							           Margin="18,0,0,0"
+							           Text="目前官方启动器存在 bug：如果游戏路径中存在空格，存档将无法保存在正确的位置。这个 bug 一般无害，但特殊情况下会导致错误。除了修改游戏安装路径外，你也可以使用此功能修正存档位置。修正完成后建议始终使用工具箱启动游戏。"
+							           TextWrapping="Wrap" />
 						</StackPanel>
-						<ui:ToggleSwitch HorizontalAlignment="Right"
-						                 IsChecked="{Binding IsSplashScreenDisabled, Mode=TwoWay}" />
-					</Grid>
-				</ui:Card>
-				<ui:TextBlock Margin="0,20,0,8"
-				              FontTypography="BodyStrong"
-				              Text="工具箱配置" />
-				<ui:Card>
-					<Grid MinHeight="30">
-						<StackPanel VerticalAlignment="Center"
-						            Orientation="Horizontal">
-							<ui:SymbolIcon Margin="0,0,8,0"
-							               VerticalAlignment="Center"
-							               FontSize="24"
-							               Symbol="AnimalCat24" />
-							<ui:TextBlock VerticalAlignment="Center"
-							              Text="启动游戏后退出" />
+					</ui:Card>
+					<ui:Card Margin="0,2,0,0"
+					         Background="{DynamicResource InfoBarSuccessSeverityBackgroundBrush}"
+					         Visibility="{Binding FixSavedPathSuccessInfoBarVisibility, Mode=OneWay}">
+						<StackPanel Orientation="Horizontal">
+							<ui:SymbolIcon VerticalAlignment="Top"
+							               Filled="True"
+							               FontSize="16"
+							               Foreground="{DynamicResource InfoBarSuccessSeverityIconBackground}"
+							               Symbol="CheckmarkCircle24" />
+							<TextBlock Width="433"
+							           Margin="18,0,0,0"
+							           Text="存档位于正确位置，不需要修正。"
+							           TextWrapping="Wrap" />
 						</StackPanel>
-						<ui:ToggleSwitch HorizontalAlignment="Right"
-						                 IsChecked="{Binding AutoExit, Mode=TwoWay}" />
-					</Grid>
-				</ui:Card>
-			</StackPanel>
-			<StackPanel Grid.Column="1">
+					</ui:Card>
+				</StackPanel>
+			</ScrollViewer>
+			<StackPanel Grid.Column="1"
+			            Margin="20,10,20,0">
 				<ui:TextBlock Margin="0,0,0,8"
 				              FontTypography="BodyStrong"
 				              Text="关于" />
@@ -157,9 +224,9 @@
 				                    Cursor="Hand"
 				                    NavigateUri="https://tieba.baidu.com/f?kw=尘白禁区" />
 			</StackPanel>
-			<Grid Grid.Column="1"
-			      Margin="-28,0,0,40"
-			      HorizontalAlignment="Center"
+			<Grid Grid.ColumnSpan="2"
+			      Margin="0,0,18,18"
+			      HorizontalAlignment="Right"
 			      VerticalAlignment="Bottom">
 				<ui:Button Padding="24,10,28,10"
 				           Appearance="Primary"
@@ -177,5 +244,5 @@
 				           Visibility="{Binding UpdateButtonVisibility, Mode=OneWay}" />
 			</Grid>
 		</Grid>
-	</StackPanel>
+	</Grid>
 </ui:FluentWindow>
