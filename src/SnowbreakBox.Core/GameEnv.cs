@@ -29,7 +29,7 @@ namespace SnowbreakBox.Core {
 
 		private readonly LauncherType _launcherType;
 
-		public string GameFolder { get; set; }
+		public string GameFolder { get; private set; }
 
 		private bool _isSavedPathStandard = false;
 		public bool IsSavedPathStandard {
@@ -332,10 +332,10 @@ namespace SnowbreakBox.Core {
 				throw new Exception(errorMsgs[maxProgress]);
 			}
 
-			IsSavedPathStandard = clssicSavedFolderType == 1;
-
 			if (classicDetected) {
 				_launcherType = LauncherType.Classic;
+				IsSavedPathStandard = clssicSavedFolderType == 1;
+
 				_launcherPath = classicLauncherPath;
 				GameFolder = classicGameFolder;
 				_savedFolder = classicSavedFolder;
@@ -356,6 +356,8 @@ namespace SnowbreakBox.Core {
 				}
 			} else {
 				_launcherType = seasunSavedFolderType == 2 ? LauncherType.SeasunOld : LauncherType.Seasun;
+				IsSavedPathStandard = seasunSavedFolderType == 1;
+
 				_launcherPath = seasunLauncherPath;
 				GameFolder = seasunGameFolder;
 				_savedFolder = seasunSavedFolder;
