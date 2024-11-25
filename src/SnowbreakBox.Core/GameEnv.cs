@@ -14,9 +14,9 @@ namespace SnowbreakBox.Core {
 		private static readonly string ENGINE_INI_PATH = "Config\\WindowsNoEditor\\Engine.ini";
 		private static readonly string GAME_INI_PATH = "Config\\WindowsNoEditor\\Game.ini";
 
-		private string _launcherPath;
+		private readonly string _launcherPath;
 		private string _savedFolder;
-		private Version _gameVersion;
+		private readonly Version _gameVersion;
 		private readonly HttpClient _httpClient = new HttpClient();
 		private Task<Version> _fetchRemoteGameVersionTask;
 
@@ -26,7 +26,8 @@ namespace SnowbreakBox.Core {
 			Seasun,
 			SeasunOld
 		}
-		LauncherType _launcherType;
+
+		private readonly LauncherType _launcherType;
 
 		public string GameFolder { get; set; }
 
@@ -310,10 +311,11 @@ namespace SnowbreakBox.Core {
 			);
 
 			if (classicDetected && seasunDetected) {
-				// 检测到两个启动器，选上次使用时间更近的那一个
-				string classicGamePath = Path.Combine(classicGameFolder, "game\\Game\\Binaries\\Win64\\game.exe");
-				string seasunGamePath = Path.Combine(seasunGameFolder, "game\\Game\\Binaries\\Win64\\game.exe");
-				if (File.GetLastAccessTime(classicGamePath) < File.GetLastAccessTime(seasunGamePath)) {
+				// 检测到两个启动器，应选择最近被使用的那个。比较上次访问时间是不可靠的，因此我们比较
+				// Engine.ini 的上次被修改时间，因为游戏每次启动时都会修改这个文件。
+				string classicEngineIniPath = Path.Combine(classicSavedFolder, ENGINE_INI_PATH);
+				string seasunEngineIniPath = Path.Combine(seasunSavedFolder, ENGINE_INI_PATH);
+				if (File.GetLastWriteTime(classicEngineIniPath) < File.GetLastWriteTime(seasunEngineIniPath)) {
 					classicDetected = false;
 				} else {
 					seasunDetected = false;
