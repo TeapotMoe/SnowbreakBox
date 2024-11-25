@@ -1,16 +1,13 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SnowbreakBox.Core {
-    public class GameEnv : INotifyPropertyChanged {
+	public class GameEnv : INotifyPropertyChanged {
 		private static readonly string ENGINE_INI_PATH = "Config\\WindowsNoEditor\\Engine.ini";
 		private static readonly string GAME_INI_PATH = "Config\\WindowsNoEditor\\Game.ini";
 
@@ -242,40 +239,12 @@ namespace SnowbreakBox.Core {
 			return false;
 		}
 
-		// 解析 json，不值得引入新的库
-		private string ReadStringFromJson(string json, string key) {
-			int idx = json.IndexOf('\"' + key + '\"');
-			if (idx < 0) {
-				return null;
-			}
-
-			json = json.Substring(idx + key.Length + 2);
-			json.TrimStart();
-			if (json.Length == 0 || json[0] != ':') {
-				return null;
-			}
-
-			json = json.Substring(1);
-			json.TrimStart();
-			if (json.Length == 0 || json[0] != '\"') {
-				return null;
-			}
-
-			json = json.Substring(1);
-			int strEnd = json.IndexOf('\"');
-			if (strEnd < 0) {
-				return null;
-			}
-
-			return json.Substring(0, strEnd);
-		}
-
 		private async Task<Version> FetchRemoteGameVersion() {
 			try {
 				string response = await _httpClient.GetStringAsync(
 					"https://cbjq-client.xoyocdn.com/games/cbjq/SyncEntrys/cbjq_SyncEntry.json")
 					.ConfigureAwait(false);
-				string versionStr = ReadStringFromJson(response, "GameVersion");
+				string versionStr = Utils.ReadStringFromJson(response, "GameVersion");
 				if (versionStr != null && Version.TryParse(versionStr, out var version)) {
 					return version;
 				}
@@ -344,7 +313,7 @@ namespace SnowbreakBox.Core {
 				try {
 					// 读取 manifest.json 而不是 version.cfg，启动器使用前者对比本地与云端的文件变更
 					string json = File.ReadAllText(Path.Combine(GameFolder, "manifest.json"));
-					string versionStr = ReadStringFromJson(json, "version");
+					string versionStr = Utils.ReadStringFromJson(json, "version");
 					if (versionStr == "--") {
 						// 存在更新时经典启动器将 version 字段改为“--”
 						_gameVersion = new Version();
@@ -388,11 +357,7 @@ namespace SnowbreakBox.Core {
 
 			if (GameHasUpdate) {
 				// 游戏需要更新，启动官方启动器
-				Process.Start(new ProcessStartInfo {
-					WorkingDirectory = Path.GetDirectoryName(_launcherPath),
-					FileName = Path.GetFileName(_launcherPath),
-					UseShellExecute = true
-				});
+				Utils.LaunchExe(_launcherPath);
 				return;
 			}
 
@@ -420,29 +385,7 @@ namespace SnowbreakBox.Core {
 				arguments += '\"';
 			}
 
-			// 工作目录为程序所在目录
-			Process.Start(new ProcessStartInfo {
-				WorkingDirectory = Path.Combine(GameFolder, "game\\Game\\Binaries\\Win64"),
-				FileName = "game.exe",
-				Arguments = arguments,
-				UseShellExecute = true
-			});
-		}
-
-		static void CopyDirectory(string sourceDir, string destinationDir) {
-			Directory.CreateDirectory(destinationDir);
-
-			// 复制文件
-			foreach (string file in Directory.GetFiles(sourceDir)) {
-				string destFile = Path.Combine(destinationDir, Path.GetFileName(file));
-				File.Copy(file, destFile);
-			}
-
-			// 递归复制子文件夹
-			foreach (string dir in Directory.GetDirectories(sourceDir)) {
-				string destDir = Path.Combine(destinationDir, Path.GetFileName(dir));
-				CopyDirectory(dir, destDir);
-			}
+			Utils.LaunchExe(Path.Combine(GameFolder, "game\\Game\\Binaries\\Win64\\game.exe"), arguments);
 		}
 
 		public void FixSavedPath() {
@@ -458,7 +401,7 @@ namespace SnowbreakBox.Core {
 				Directory.Move(_savedFolder, standardSavedPath);
 			} else {
 				// 复制而不是移动，一来跨驱动不存在移动的概念，二来存档文件被占用时不会造成破坏
-				CopyDirectory(_savedFolder, standardSavedPath);
+				Utils.CopyDirectory(_savedFolder, standardSavedPath);
 				Directory.Delete(_savedFolder, true);
 			}
 

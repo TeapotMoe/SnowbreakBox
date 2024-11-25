@@ -58,7 +58,6 @@ namespace SnowbreakBox {
 			MessageBox.Show(msg, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 
-
 		public MainWindow() {
 			try {
 				_gameEnv = new GameEnv();
