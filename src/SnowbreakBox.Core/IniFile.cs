@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace SnowbreakBox {
+namespace SnowbreakBox.Core {
 	internal class IniFile {
 		private readonly string _fileName;
 

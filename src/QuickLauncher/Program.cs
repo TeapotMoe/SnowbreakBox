@@ -1,17 +1,16 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Reflection;
+﻿using SnowbreakBox.Core;
+using System;
 
 namespace QuickLauncher {
 	internal class Program {
-		static void Main(string[] args) {
-			ProcessStartInfo startInfo = new ProcessStartInfo {
-				WorkingDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-				FileName = "SnowbreakBox.exe",
-				Arguments = "-q",
-				UseShellExecute = true
-			};
-			Process.Start(startInfo);
+		static void Main() {
+			try {
+				GameEnv gameEnv = new GameEnv();
+				gameEnv.LaunchGameOrLauncher();
+			} catch (Exception ex) {
+				NativeMethods.MessageBox(IntPtr.Zero, ex.Message, "错误",
+					NativeMethods.MB_OK | NativeMethods.MB_ICONERROR);
+			}
 		}
 	}
 }
