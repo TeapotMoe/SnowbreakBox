@@ -29,6 +29,11 @@ namespace SnowbreakBox {
 					_gameEnv.GraphicState = value;
 				} catch (Exception ex) {
 					ShowError(ex.Message);
+
+					// ComboBox 存在 bug，选中条目不会自动更新
+					Dispatcher.BeginInvoke((Action)(() => {
+						graphicStateComboBox.SelectedItem = graphicStateComboBox.Items[_gameEnv.GraphicState];
+					}));
 				}
 			}
 		}

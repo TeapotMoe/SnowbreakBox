@@ -85,7 +85,8 @@
 									              Text="自动修改 Engine.ini" />
 								</StackPanel>
 							</StackPanel>
-							<ComboBox HorizontalAlignment="Right"
+							<ComboBox x:Name="graphicStateComboBox"
+							          HorizontalAlignment="Right"
 							          SelectedIndex="{Binding GraphicState, Mode=TwoWay}">
 								<ComboBoxItem Content="无" />
 								<ComboBoxItem Content="优化" />
