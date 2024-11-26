@@ -20,8 +20,15 @@ jobs:
     - name: Create the app package
       run: msbuild SnowbreakBox.sln /restore "/p:Platform=x64;Configuration=Release;RestorePackagesConfig=true"
 
+    - name: Delete redundant files
+      shell: pwsh
+      run: |
+        $binfolder = "bin\x64\Release"
+        Remove-Item "$binfolder\*.pdb" -Force
+        Remove-Item "$binfolder\*.xml" -Force
+
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: SnowbreakBox
         path: bin\x64\Release
