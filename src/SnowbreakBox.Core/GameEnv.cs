@@ -19,6 +19,8 @@ namespace SnowbreakBox.Core {
 
 		private enum LauncherType {
 			Classic,
+			// B 服启动器，经典启动器换皮，只有启动游戏的参数不同
+			ClassicBili,
 			// 西山居启动器在 v1.7.7 更改了游戏启动参数
 			Seasun,
 			SeasunOld
@@ -170,7 +172,7 @@ namespace SnowbreakBox.Core {
 
 			try {
 				launcherPath = Registry.GetValue(launcherRegKey, "DisplayIcon", null) as string;
-				if (!File.Exists(launcherPath)) {
+				if (launcherPath == null || !File.Exists(launcherPath)) {
 					launcherPath = null;
 					return false;
 				}
@@ -183,7 +185,7 @@ namespace SnowbreakBox.Core {
 
 			try {
 				gameFolder = Registry.GetValue(gameRegKey, "InstallPath", null) as string;
-				if (!File.Exists(Path.Combine(gameFolder, "game\\Game\\Binaries\\Win64\\game.exe"))) {
+				if (gameFolder == null || !File.Exists(Path.Combine(gameFolder, "game\\Game\\Binaries\\Win64\\game.exe"))) {
 					gameFolder = null;
 					return false;
 				}
@@ -266,8 +268,34 @@ namespace SnowbreakBox.Core {
 				out string classicLauncherPath,
 				out string classicGameFolder,
 				out string classicSavedFolder,
-				out int clssicSavedFolderType
+				out int classicSavedFolderType
 			);
+
+			// 检测 B 服启动器。B 服启动器是经典启动器换皮，且二者不能共存，可以视为经典启动器
+			bool isClassicBili = false;
+			string biliLauncherPath = null;
+			string biliGameFolder = null;
+			if (!classicDetected) {
+				isClassicBili = FindGame(
+					"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\ProjectSnow",
+					"HKEY_LOCAL_MACHINE\\SOFTWARE\\Kingsoft\\cbjqBili",
+					false,
+					out biliLauncherPath,
+					out biliGameFolder,
+					out string biliSavedFolder,
+					out int biliSavedFolderType
+				);
+				if (isClassicBili) {
+					// 检测到 B 服启动器则覆盖经典启动器的信息以方便后续计算；
+					// 如果没检测到不应覆盖，因为可能需要计算错误消息
+					classicDetected = true;
+					classicLauncherPath = biliLauncherPath;
+					classicGameFolder = biliGameFolder;
+					classicSavedFolder = biliSavedFolder;
+					classicSavedFolderType = biliSavedFolderType;
+				}
+			}
+
 			// 检测西山居启动器
 			bool seasunDetected = FindGame(
 				"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\SeasunGameCBJQos",
@@ -294,16 +322,17 @@ namespace SnowbreakBox.Core {
 				// 1: 未安装游戏
 				// 2: 未找到存档
 				int classicProgress = classicLauncherPath == null ? 0 : (classicGameFolder == null ? 1 : 2);
+				int biliProgress = biliLauncherPath == null ? 0 : (biliGameFolder == null ? 1 : 2);
 				int seasunProgress = seasunLauncherPath == null ? 0 : (seasunGameFolder == null ? 1 : 2);
-				int maxProgress = Math.Max(classicProgress, seasunProgress);
+				int maxProgress = Math.Max(Math.Max(classicProgress, biliProgress), seasunProgress);
 
 				string[] errorMsgs = { "未找到启动器！", "未找到游戏，请先在启动器中安装游戏！", "未找到游戏存档，请先启动一次游戏！" };
 				throw new Exception(errorMsgs[maxProgress]);
 			}
 
 			if (classicDetected) {
-				_launcherType = LauncherType.Classic;
-				IsSavedPathStandard = clssicSavedFolderType == 1;
+				_launcherType = isClassicBili ? LauncherType.ClassicBili : LauncherType.Classic;
+				IsSavedPathStandard = classicSavedFolderType == 1;
 
 				_launcherPath = classicLauncherPath;
 				GameFolder = classicGameFolder;
@@ -361,7 +390,8 @@ namespace SnowbreakBox.Core {
 				return;
 			}
 
-			string arguments = "-FeatureLevelES31 -ChannelID=jinshan ";
+			string arguments = "-FeatureLevelES31 -ChannelID=" +
+				(_launcherType == LauncherType.ClassicBili ? "bilibili" : "jinshan") + " ";
 
 			// 两个启动器传递路径的做法都是错的，这导致了存档路径的混乱。为了使用现有存档，我们只能将错就错。
 			if (IsSavedPathStandard) {

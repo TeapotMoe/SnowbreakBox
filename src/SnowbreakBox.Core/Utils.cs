@@ -10,14 +10,12 @@ namespace SnowbreakBox.Core {
 				return null;
 			}
 
-			json = json.Substring(idx + key.Length + 2);
-			json.TrimStart();
+			json = json.Substring(idx + key.Length + 2).TrimStart();
 			if (json.Length == 0 || json[0] != ':') {
 				return null;
 			}
 
-			json = json.Substring(1);
-			json.TrimStart();
+			json = json.Substring(1).TrimStart();
 			if (json.Length == 0 || json[0] != '\"') {
 				return null;
 			}
