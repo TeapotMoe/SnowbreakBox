@@ -1,0 +1,27 @@
+name: build
+
+on:
+  push:
+    paths: [ '.github/workflows/build.yml', 'SnowbreakBox.sln', 'src/**' ]
+  pull_request:
+    paths: [ '.github/workflows/build.yml', 'SnowbreakBox.sln', 'src/**' ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Create the app package
+      run: msbuild SnowbreakBox.sln /restore /p:Platform=x64;Configuration=Release
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: SnowbreakBox
+        path: bin\x64\Release
