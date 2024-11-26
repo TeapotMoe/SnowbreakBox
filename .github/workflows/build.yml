@@ -18,7 +18,7 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     - name: Create the app package
-      run: msbuild SnowbreakBox.sln /restore "/p:Platform=x64;Configuration=Release"
+      run: msbuild SnowbreakBox.sln /restore "/p:Platform=x64;Configuration=Release;RestorePackagesConfig=true"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
