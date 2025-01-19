@@ -1,12 +1,17 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace SnowbreakBox.Core {
+	public enum LoginChannel {
+		Default,
+		Seasun,
+		Bilibili
+	}
+
 	public class GameEnv : INotifyPropertyChanged {
 		private static readonly string ENGINE_INI_PATH = "Config\\WindowsNoEditor\\Engine.ini";
 		private static readonly string GAME_INI_PATH = "Config\\WindowsNoEditor\\Game.ini";
@@ -62,6 +67,26 @@ namespace SnowbreakBox.Core {
 			}
 		}
 
+		private static void SetGraphicState(int value, string saveFolder) {
+			string engineIniPath = Path.Combine(saveFolder, ENGINE_INI_PATH);
+			string storagePath = engineIniPath + ".box";
+
+			// 存档不存在则创建文件
+			Directory.CreateDirectory(Path.GetDirectoryName(engineIniPath));
+
+			// 无需保留原始文件的内容，游戏启动时会自动添加默认条目
+			string iniText = value > 0 ?
+				Properties.Resources.ResourceManager.GetString("Profile" + value) : string.Empty;
+			File.WriteAllText(engineIniPath, iniText);
+
+			if (value == 0 && File.Exists(storagePath)) {
+				File.Delete(storagePath);
+				return;
+			}
+
+			File.WriteAllBytes(storagePath, BitConverter.GetBytes(value));
+		}
+
 		public int GraphicState {
 			get {
 				// 游戏启动时会修改 Engine.ini，删除注释并重新排列条目，很难根据 Engine.ini
@@ -90,26 +115,26 @@ namespace SnowbreakBox.Core {
 
 				return 0;
 			}
-			set {
-				string engineIniPath = Path.Combine(_savedFolder, ENGINE_INI_PATH);
-				string storagePath = engineIniPath + ".box";
-
-				// 无需保留原始文件的内容，游戏启动时会自动添加默认条目
-				string iniText = value > 0 ?
-					Properties.Resources.ResourceManager.GetString("Profile" + value) : string.Empty;
-				File.WriteAllText(engineIniPath, iniText);
-
-				if (value == 0 && File.Exists(storagePath)) {
-					File.Delete(storagePath);
-					return;
-				}
-
-				File.WriteAllBytes(storagePath, BitConverter.GetBytes(value));
-			}
+			set { SetGraphicState(value, _savedFolder); }
 		}
 
 		private static readonly string SPLASH_SCREEN_SECTION = "Distribution";
 		private static readonly string SPLASH_SCREEN_KEY = "SplashScreen";
+
+		private static void SetSplashScreenDisabled(bool value, string saveFolder) {
+			string gameIniPath = Path.Combine(saveFolder, GAME_INI_PATH);
+
+			// 存档不存在则创建文件
+			Directory.CreateDirectory(Path.GetDirectoryName(gameIniPath));
+
+			IniFile iniFile = new IniFile(gameIniPath);
+			if (value) {
+				iniFile.Write(SPLASH_SCREEN_KEY, SPLASH_SCREEN_SECTION, "False");
+			} else {
+				iniFile.DeleteKey(SPLASH_SCREEN_KEY, SPLASH_SCREEN_SECTION);
+			}
+		}
+
 		public bool IsSplashScreenDisabled {
 			get {
 				string gameIniPath = Path.Combine(_savedFolder, GAME_INI_PATH);
@@ -117,16 +142,11 @@ namespace SnowbreakBox.Core {
 				string value = iniFile.Read(SPLASH_SCREEN_KEY, SPLASH_SCREEN_SECTION);
 				return value.ToLower() == "false";
 			}
-			set {
-				string gameIniPath = Path.Combine(_savedFolder, GAME_INI_PATH);
-				IniFile iniFile = new IniFile(gameIniPath);
-				if (value) {
-					iniFile.Write(SPLASH_SCREEN_KEY, "False", SPLASH_SCREEN_SECTION);
-				} else {
-					iniFile.DeleteKey(SPLASH_SCREEN_KEY, SPLASH_SCREEN_SECTION);
-				}
-			}
+			set => SetSplashScreenDisabled(value, _savedFolder);
 		}
+
+		public LoginChannel LauncherDefaultLoginChannel =>
+			_launcherType == LauncherType.ClassicBili ? LoginChannel.Bilibili : LoginChannel.Seasun;
 
 		private bool _gameHasUpdate = false;
 		public bool GameHasUpdate {
@@ -381,7 +401,7 @@ namespace SnowbreakBox.Core {
 			}
 		}
 
-		public void LaunchGameOrLauncher() {
+		public void Launch(LoginChannel loginChannel) {
 			WaitForCheckingGameUpdate();
 
 			if (GameHasUpdate) {
@@ -390,28 +410,44 @@ namespace SnowbreakBox.Core {
 				return;
 			}
 
-			string arguments = "-FeatureLevelES31 -ChannelID=" +
-				(_launcherType == LauncherType.ClassicBili ? "bilibili" : "jinshan") + " ";
+			if (loginChannel == LoginChannel.Default) {
+				loginChannel = LauncherDefaultLoginChannel;
+			}
+			string channel = loginChannel == LoginChannel.Seasun ? "jinshan" : "bilibili";
+			string arguments = $"-FeatureLevelES31 -ChannelID={channel} ";
 
-			// 两个启动器传递路径的做法都是错的，这导致了存档路径的混乱。为了使用现有存档，我们只能将错就错。
-			if (IsSavedPathStandard) {
-				// 使用标准存档路径
-				arguments += "\"-userdir=";
-				arguments += Path.Combine(GameFolder, "game");
-				arguments += '\"';
-			} else if (_launcherType == LauncherType.Classic) {
-				// 经典启动器在路径两边加反斜杠和双引号
-				arguments += "\"-userdir=\\\"";
-				arguments += Path.Combine(GameFolder, "game");
-				arguments += "\\\"\"";
-			} else if (_launcherType == LauncherType.Seasun) {
-				// 西山居启动器不加双引号
-				arguments += "-userdir=";
-				arguments += Path.Combine(GameFolder, "game");
+			if (loginChannel == LauncherDefaultLoginChannel) {
+				// 两个启动器传递路径的做法都是错的，这导致了存档路径的混乱。为了使用现有存档，我们只能将错就错。
+				if (IsSavedPathStandard) {
+					// 使用标准存档路径
+					arguments += "\"-userdir=";
+					arguments += Path.Combine(GameFolder, "game");
+					arguments += '\"';
+				} else if (_launcherType == LauncherType.Classic) {
+					// 经典启动器在路径两边加反斜杠和双引号
+					arguments += "\"-userdir=\\\"";
+					arguments += Path.Combine(GameFolder, "game");
+					arguments += "\\\"\"";
+				} else if (_launcherType == LauncherType.Seasun) {
+					// 西山居启动器不加双引号
+					arguments += "-userdir=";
+					arguments += Path.Combine(GameFolder, "game");
+				} else {
+					// 旧版西山居启动器在路径两侧加双引号，但没有 game 中间目录
+					arguments += "-userdir=\"";
+					arguments += GameFolder;
+					arguments += '\"';
+				}
 			} else {
-				// 旧版西山居启动器在路径两侧加双引号，但没有 game 中间目录
-				arguments += "-userdir=\"";
-				arguments += GameFolder;
+				// 每个渠道使用独立的存档位置，非启动器默认渠道的存档保存在标准存档路径的子文件夹下
+				string userDir = Path.Combine(GameFolder, "game\\Saved", loginChannel.ToString());
+				// 同步设置到新存档，和谐开关不在存档里
+				string saveFolder = userDir + "\\Saved";
+				SetGraphicState(GraphicState, saveFolder);
+				SetSplashScreenDisabled(IsSplashScreenDisabled, saveFolder);
+
+				arguments += "\"-userdir=";
+				arguments += userDir;
 				arguments += '\"';
 			}
 

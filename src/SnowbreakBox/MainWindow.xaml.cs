@@ -38,17 +38,22 @@ namespace SnowbreakBox {
 			}
 		}
 
+		public int LoginChannel {
+			get => (int)AppConfig.LoginChannel;
+			set { AppConfig.LoginChannel = (Core.LoginChannel)value; }
+		}
+
+		public string DefaultLoginChannelText =>
+			_gameEnv.LauncherDefaultLoginChannel == Core.LoginChannel.Seasun ? "启动器默认（西山居）" : "启动器默认（Bilibili）";
+
 		public bool IsSplashScreenDisabled {
 			get => _gameEnv.IsSplashScreenDisabled;
 			set { _gameEnv.IsSplashScreenDisabled = value; }
 		}
 
 		public bool AutoExit {
-			get => Settings.Default.AutoExit;
-			set {
-				Settings.Default.AutoExit = value;
-				Settings.Default.Save();
-			}
+			get => AppConfig.AutoExit;
+			set { AppConfig.AutoExit = value; }
 		}
 
 		public bool IsFixSavedPathButtonEnabled => !_gameEnv.IsSavedPathStandard;
@@ -109,7 +114,7 @@ namespace SnowbreakBox {
 
 		private void LaunchOrUpdateButton_Click(object sender, RoutedEventArgs e) {
 			try {
-				_gameEnv.LaunchGameOrLauncher();
+				_gameEnv.Launch(AppConfig.LoginChannel);
 			} catch (Exception ex) {
 				ShowError(ex.Message);
 				return;

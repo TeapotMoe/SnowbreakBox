@@ -128,6 +128,29 @@
 							                 IsChecked="{Binding IsSplashScreenDisabled, Mode=TwoWay}" />
 						</Grid>
 					</ui:Card>
+					<ui:Card Margin="0,2,0,0">
+						<Grid MinHeight="30">
+							<StackPanel VerticalAlignment="Center"
+							            Orientation="Horizontal">
+								<ui:SymbolIcon Margin="0,0,10,0"
+								               VerticalAlignment="Center"
+								               FontSize="24"
+								               Symbol="PersonLink24" />
+								<StackPanel>
+									<ui:TextBlock Text="登录渠道" />
+									<ui:TextBlock FontSize="12"
+									              Foreground="Gray"
+									              Text="不同渠道的存档相互独立" />
+								</StackPanel>
+							</StackPanel>
+							<ComboBox HorizontalAlignment="Right"
+							          SelectedIndex="{Binding LoginChannel, Mode=TwoWay}">
+								<ComboBoxItem Content="{Binding DefaultLoginChannelText, Mode=OneTime}" />
+								<ComboBoxItem>西山居</ComboBoxItem>
+								<ComboBoxItem>Bilibili</ComboBoxItem>
+							</ComboBox>
+						</Grid>
+					</ui:Card>
 					<ui:TextBlock Margin="0,20,0,8"
 					              FontTypography="BodyStrong"
 					              Text="工具箱配置" />
@@ -208,7 +231,7 @@
 				<ui:TextBlock Margin="0,0,0,8"
 				              FontTypography="BodyStrong"
 				              Text="关于" />
-				<ui:TextBlock Text="尘白禁区工具箱 v1.5" />
+				<ui:TextBlock Text="尘白禁区工具箱 v1.6" />
 				<ui:TextBlock Margin="0,4,0,0"
 				              Text="作者 嶙峋时代" />
 				<ui:TextBlock Margin="0,20,0,8"
