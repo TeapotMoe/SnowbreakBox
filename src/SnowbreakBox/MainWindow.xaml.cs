@@ -40,7 +40,7 @@ namespace SnowbreakBox {
 
 		public int LoginChannel {
 			get => (int)AppConfig.LoginChannel;
-			set { AppConfig.LoginChannel = (Core.LoginChannel)value; }
+			set => AppConfig.LoginChannel = (LoginChannel)value;
 		}
 
 		public string DefaultLoginChannelText =>
@@ -48,12 +48,12 @@ namespace SnowbreakBox {
 
 		public bool IsSplashScreenDisabled {
 			get => _gameEnv.IsSplashScreenDisabled;
-			set { _gameEnv.IsSplashScreenDisabled = value; }
+			set => _gameEnv.IsSplashScreenDisabled = value;
 		}
 
 		public bool AutoExit {
 			get => AppConfig.AutoExit;
-			set { AppConfig.AutoExit = value; }
+			set => AppConfig.AutoExit = value;
 		}
 
 		public bool IsFixSavedPathButtonEnabled => !_gameEnv.IsSavedPathStandard;

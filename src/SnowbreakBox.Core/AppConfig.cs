@@ -29,9 +29,7 @@ namespace SnowbreakBox.Core {
 				string value = _iniFile.Read(AUTO_EXIT_KEY, APP_SECTION);
 				return string.IsNullOrEmpty(value) || value == "1";
 			}
-			set {
-				_iniFile.Write(AUTO_EXIT_KEY, APP_SECTION, value ? "1" : "0");
-			}
+			set => _iniFile.Write(AUTO_EXIT_KEY, APP_SECTION, value ? "1" : "0");
 		}
 
 		public static LoginChannel LoginChannel {
@@ -43,9 +41,7 @@ namespace SnowbreakBox.Core {
 					return LoginChannel.Default;
 				}
 			}
-			set {
-				_iniFile.Write(LOGIN_CHANNEL_KEY , GAME_SECTION , value.ToString());
-			}
+			set => _iniFile.Write(LOGIN_CHANNEL_KEY , GAME_SECTION , value.ToString());
 		}
 	}
 }

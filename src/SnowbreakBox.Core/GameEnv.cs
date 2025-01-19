@@ -62,9 +62,7 @@ namespace SnowbreakBox.Core {
 					return false;
 				}
 			}
-			set {
-				File.WriteAllText(Path.Combine(GameFolder, "localization.txt"), value ? "localization = 1" : "localization = 0");
-			}
+			set => File.WriteAllText(Path.Combine(GameFolder, "localization.txt"), value ? "localization = 1" : "localization = 0");
 		}
 
 		private static void SetGraphicState(int value, string saveFolder) {
@@ -115,7 +113,7 @@ namespace SnowbreakBox.Core {
 
 				return 0;
 			}
-			set { SetGraphicState(value, _savedFolder); }
+			set => SetGraphicState(value, _savedFolder);
 		}
 
 		private static readonly string SPLASH_SCREEN_SECTION = "Distribution";
